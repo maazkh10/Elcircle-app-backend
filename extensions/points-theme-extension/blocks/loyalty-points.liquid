@@ -1,0 +1,37 @@
+
+<div id="loyalty-points-box" style="margin-top:20px;">
+
+  {% if customer %}
+    <p id="points-text">Loading points...</p>
+
+    <label style="display:block;">
+      <input type="radio" name="use_points" value="yes">
+      Use my points
+    </label>
+
+    <label style="display:block;">
+      <input type="radio" name="use_points" value="no" checked>
+      Do not use points
+    </label>
+  {% else %}
+    <p>Please login to use reward points</p>
+  {% endif %}
+
+</div>
+
+<script>
+  window.customerEmail = {{ customer.email | json }};
+  window.shopDomain = {{ shop.permanent_domain | json }};
+</script>
+
+
+
+<script src="{{ 'loyalty.js' | asset_url }}"></script>
+{% schema %}
+{
+  "name": "Points thing ",
+  "target": "section",
+  "settings": []
+}
+{% endschema %}
+
