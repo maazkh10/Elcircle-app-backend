@@ -6,7 +6,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   }
 
   // YOUR DIRECT CLOUDFLARE URL (Ensure this matches your terminal!)
-  const CLOUDFLARE_BASE_URL = "https://postposted-prospective-solved-processors.trycloudflare.com/";
+  const CLOUDFLARE_BASE_URL = "https://accommodate-broad-explosion-punk.trycloudflare.com";
 
   /* -----------------------------
       FETCH CUSTOMER POINTS (DIRECT)
@@ -69,7 +69,7 @@ document.addEventListener("click", async (e) => {
   checkoutBtn.innerText = "Applying Points...";
 
   // const CLOUDFLARE_URL = "https://local-permanent-generate-refuse.trycloudflare.com";
-const CLOUDFLARE_URL = "https://postposted-prospective-solved-processors.trycloudflare.com/";
+const CLOUDFLARE_URL = "https://accommodate-broad-explosion-punk.trycloudflare.com";
 
 console.log("Redeem URL:", `${CLOUDFLARE_URL}/api/loyalty/redeem`);
 

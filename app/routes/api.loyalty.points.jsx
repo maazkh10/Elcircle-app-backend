@@ -1,11 +1,11 @@
 import CustomerPoints from "../models/CustomerPoints.server";
-
+// import { connectDB } from "../lib/db.server";
 /* ----------------------------------
    COMMON CORS HEADERS
 ---------------------------------- */
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Methods": "GET, OPTIONS",
+  "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
   "Access-Control-Allow-Headers": "Content-Type",
   "Content-Type": "application/json",
 };
@@ -28,6 +28,9 @@ export const action = async ({ request }) => {
    GET CUSTOMER POINTS
 ---------------------------------- */
 export const loader = async ({ request }) => {
+
+  // await connectDB()
+
   try {
     const url = new URL(request.url);
     const email = url.searchParams.get("email");
