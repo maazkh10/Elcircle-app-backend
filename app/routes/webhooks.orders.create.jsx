@@ -1,56 +1,58 @@
-
-
-
-// import { connectDB } from "../lib/db.server";
-
 import CustomerPoints from "../models/CustomerPoints.server";
 
-// loader one 
-export const loader = async () =>{
-
-    return new Response("Webhook code  one api")
-}
-
+export const loader = async () => {
+  return new Response("Webhook endpoint active", { status: 200 });
+};
 
 export const action = async ({ request }) => {
   try {
 
-    // await connectDB()
-
-    console.log("🔥 ORDER WEBHOOK RECEIVED");
+    // 🔥 ADD HERE
+    const shop = request.headers.get("x-shopify-shop-domain");
 
     const order = await request.json();
 
-    console.log("Discount codes:", order.discount_codes);
+    if (order.financial_status !== "paid") {
+      return new Response("Waiting for payment", { status: 200 });
+    }
 
-    const email = order.customer?.email;
-    if (!email) return new Response("No customer");
+    const email = order.customer?.email?.toLowerCase().trim();
 
-    const loyaltyCode = order.discount_codes?.find(
-      d => d.code.startsWith("LOYALTY-")
+    if (!shop || !email) {
+      return new Response("Missing shop/email", { status: 200 });
+    }
+
+    const discountCodes = order.discount_codes || [];
+    const loyaltyCode = discountCodes.find((d) =>
+      d.code.toUpperCase().startsWith("LOYALTY-")
     );
 
     if (!loyaltyCode) {
-      console.log("No loyalty discount used");
-      return new Response("No loyalty code");
+      return new Response("No loyalty discount", { status: 200 });
     }
 
     const usedPoints = Number(loyaltyCode.code.split("-")[1]);
 
-    const customer = await CustomerPoints.findOne({
-      email: email.toLowerCase()
+    const customer = await CustomerPoints.findOne({ shop, email });
+
+    if (!customer) {
+      return new Response("Customer not found", { status: 200 });
+    }
+
+    customer.totalpoints -= usedPoints;
+
+    customer.redeemed.push({
+      orderId: order.id,
+      pointsUsed: usedPoints,
+      date: new Date()
     });
 
-    if (!customer) return new Response("Customer not found");
-
-    customer.availablePoints -= usedPoints;
     await customer.save();
 
-    console.log("✅ Points deducted:", usedPoints);
+    return new Response("Points deducted", { status: 200 });
 
-    return new Response("OK");
   } catch (err) {
-    console.log("Webhook error:", err);
-    return new Response("Error", { status: 500 });
+    console.error("Webhook Error:", err);
+    return new Response("Error", { status: 200 });
   }
 };

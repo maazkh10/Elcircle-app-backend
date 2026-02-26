@@ -1,114 +1,78 @@
 document.addEventListener("DOMContentLoaded", async () => {
-  // 1. Check if email exists
-  if (!window.customerEmail || window.customerEmail.trim() === "") {
-    console.log("Loyalty App: No customer email found. User might be logged out.");
-    return;
+  if (!window.customerEmail) return;
+
+  const URL = "https://regina-cycadlike-senatorially.ngrok-free.dev";
+
+  /* ---------------- FETCH POINTS ---------------- */
+  try {
+    const res = await fetch(
+      `${URL}/api/loyalty/points?email=${window.customerEmail}&shop=${window.Shopify.shop}`,
+      { headers: { "ngrok-skip-browser-warning": "true" } }
+    );
+
+    const data = await res.json();
+    const el = document.getElementById("points-text");
+
+    if (el) el.innerText = `Total Points: ${data.totalpoints}`;
+
+  } catch (err) {
+    console.error("Points fetch error:", err);
   }
 
-  // YOUR DIRECT CLOUDFLARE URL (Ensure this matches your terminal!)
-  const CLOUDFLARE_BASE_URL = "https://accommodate-broad-explosion-punk.trycloudflare.com";
+  /* ---------------- CHECKOUT INTERCEPT ---------------- */
 
-  /* -----------------------------
-      FETCH CUSTOMER POINTS (DIRECT)
-  ------------------------------ */
+  document.addEventListener("click", async (e) => {
+  const btn = e.target.closest(
+    "button[name='checkout'], .shopify-payment-button__button"
+  );
+
+  if (!btn) return;
+
+  const selectedRadio = document.querySelector(
+    "input[name='use_points']:checked"
+  );
+
+  if (!selectedRadio || selectedRadio.value !== "yes") {
+    return; // normal checkout
+  }
+
+  e.preventDefault();
+  btn.disabled = true;
+  btn.innerText = "Applying loyalty discount...";
+
   try {
-    const emailParam = encodeURIComponent(window.customerEmail);
-    
-    const res = await fetch(`${CLOUDFLARE_BASE_URL}/api/loyalty/points?email=${emailParam}`, {
-      method: "GET",
-      mode: "cors", 
-      headers: { "Accept": "application/json" }
+    const redeem = await fetch(`${URL}/api/loyalty/redeem`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded",
+      },
+      body: new URLSearchParams({
+        email: window.customerEmail,
+        points: "50",
+        shop: window.shopDomain,
+      }),
     });
 
-    if (!res.ok) {
-      console.error("Loyalty App: Direct fetch failed. Status:", res.status);
+    const result = await redeem.json();
+
+    if (!result.success || !result.discountCode) {
+      alert(result.error || "Failed to apply discount");
+      btn.disabled = false;
+      btn.innerText = "Checkout";
       return;
     }
 
-    const data = await res.json();
-    console.log("Loyalty App: Received data:", data);
+    console.log("Created discount:", result.discountCode);
 
-    const text = document.getElementById("points-text");
-    if (text) {
-      const displayPoints = data.totalpoints || data.points || 0;
-      text.innerText = `Total Points: ${displayPoints}`;
-    }
+    window.location.href = `/discount/${result.discountCode}?redirect=/cart`;
 
   } catch (err) {
-    console.error("Loyalty App: Fetch error", err);
+    console.error("Redeem error:", err);
+    alert("Something went wrong");
+    btn.disabled = false;
+    btn.innerText = "Checkout";
   }
-
-  /* -----------------------------
-      RADIO BUTTON SAVE
-  ------------------------------ */
-  document.querySelectorAll("input[name='use_points']").forEach(radio => {
-    radio.addEventListener("change", (e) => {
-      localStorage.setItem("usePoints", e.target.value);
-    });
-  });
 });
 
-/* ===================================
-    INTERCEPT CHECKOUT & BUY IT NOW
-=================================== */
-document.addEventListener("click", async (e) => {
-  // Select either the standard cart checkout button OR the Shopify dynamic 'Buy it now' button
-  const checkoutBtn = e.target.closest("button[name='checkout'], .shopify-payment-button__button");
-  if (!checkoutBtn) return;
-
-  const usePoints = localStorage.getItem("usePoints");
-  if (usePoints !== "yes") return;
-
-  // IMPORTANT: Stop the default checkout immediately
-  // e.preventDefault();
-  // e.stopPropagation();
   
-  // UI Feedback
-  const originalText = checkoutBtn.innerText;
-  checkoutBtn.disabled = true;
-  checkoutBtn.innerText = "Applying Points...";
-
-  // const CLOUDFLARE_URL = "https://local-permanent-generate-refuse.trycloudflare.com";
-const CLOUDFLARE_URL = "https://accommodate-broad-explosion-punk.trycloudflare.com";
-
-console.log("Redeem URL:", `${CLOUDFLARE_URL}/api/loyalty/redeem`);
-
-  try {
-    const res = await fetch(`${CLOUDFLARE_URL}/api/loyalty/redeem`, {
-      method: "POST",
-      mode: "cors",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        email: window.customerEmail,
-        points: 100, // You can change this to a dynamic value from your select dropdown
-      shop: window.shopDomain
-      })
-    });
-
-    const data = await res.json();
-    console.log("Response from server:", data);
-
-
-    if (data.success && data.discountCode) {
-  console.log("Discount created:", data.discountCode);
-
-  // stop further JS execution
-  window.location.assign(
-    `/discount/${data.discountCode}?redirect=/checkout`
-  );
-
-  return;
-}
-
-  } catch (err) {
-    console.error("Redeem failed:", err);
-    alert("Could not apply points: " + err.message);
-    
-    // Reset button so the user can still buy the product without points
-    checkoutBtn.disabled = false;
-    checkoutBtn.innerText = originalText;
-  }
-console.log(CLOUDFLARE_URL)
-
 });
-

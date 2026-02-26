@@ -7,13 +7,38 @@ import { addDocumentResponseHeaders } from "./shopify.server";
 
 export const streamTimeout = 5000;
 
+// ✅ Global CORS headers
+const corsHeaders = {
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
+  "Access-Control-Allow-Headers": "Content-Type, ngrok-skip-browser-warning",
+};
+
 export default async function handleRequest(
   request,
   responseStatusCode,
   responseHeaders,
   reactRouterContext,
 ) {
+
+  // 🔥 PRE-FLIGHT HANDLING (THIS FIXES YOUR ERROR)
+  if (request.method === "OPTIONS") {
+    return new Response(null, {
+      status: 204,
+      headers: {
+        ...corsHeaders,
+      },
+    });
+  }
+
+  // Add Shopify headers
   addDocumentResponseHeaders(request, responseHeaders);
+
+  // 🔥 Inject CORS headers into every response
+  Object.entries(corsHeaders).forEach(([key, value]) => {
+    responseHeaders.set(key, value);
+  });
+
   const userAgent = request.headers.get("user-agent");
   const callbackName = isbot(userAgent ?? "") ? "onAllReady" : "onShellReady";
 
@@ -26,12 +51,14 @@ export default async function handleRequest(
           const stream = createReadableStreamFromReadable(body);
 
           responseHeaders.set("Content-Type", "text/html");
+
           resolve(
             new Response(stream, {
               headers: responseHeaders,
               status: responseStatusCode,
             }),
           );
+
           pipe(body);
         },
         onShellError(error) {
@@ -44,8 +71,6 @@ export default async function handleRequest(
       },
     );
 
-    // Automatically timeout the React renderer after 6 seconds, which ensures
-    // React has enough time to flush down the rejected boundary contents
     setTimeout(abort, streamTimeout + 1000);
   });
 }

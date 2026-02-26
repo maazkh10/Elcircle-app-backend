@@ -1,67 +1,43 @@
 import CustomerPoints from "../models/CustomerPoints.server";
-// import { connectDB } from "../lib/db.server";
-/* ----------------------------------
-   COMMON CORS HEADERS
----------------------------------- */
+
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
-  "Access-Control-Allow-Headers": "Content-Type",
-  "Content-Type": "application/json",
+  "Access-Control-Allow-Methods": "GET, OPTIONS",
+  "Access-Control-Allow-Headers": "Content-Type, ngrok-skip-browser-warning",
 };
 
-/* ----------------------------------
-   PREFLIGHT (IMPORTANT)
----------------------------------- */
-export const action = async ({ request }) => {
-  if (request.method === "OPTIONS") {
-    return new Response(null, {
-      status: 204,
-      headers: corsHeaders,
-    });
-  }
-
-  return new Response(null, { status: 405, headers: corsHeaders });
-};
-
-/* ----------------------------------
-   GET CUSTOMER POINTS
----------------------------------- */
 export const loader = async ({ request }) => {
-
-  // await connectDB()
+  if (request.method === "OPTIONS") {
+    return new Response(null, { status: 204, headers: corsHeaders });
+  }
 
   try {
     const url = new URL(request.url);
-    const email = url.searchParams.get("email");
 
-    if (!email) {
+    const email = url.searchParams.get("email")?.toLowerCase().trim();
+    const shop = url.searchParams.get("shop");
+
+    if (!email || !shop) {
       return new Response(
         JSON.stringify({ totalpoints: 0 }),
-        { status: 200, headers: corsHeaders }
+        { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
 
-    const customer = await CustomerPoints.findOne({
-      email: email.toLowerCase(),
-    });
+    const customer = await CustomerPoints.findOne({ shop, email });
 
     return new Response(
-      JSON.stringify({
-        totalpoints: customer?.totalpoints || 0,
-      }),
-      { status: 200, headers: corsHeaders }
+      JSON.stringify({ totalpoints: customer?.totalpoints || 0 }),
+      {
+        status: 200,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      }
     );
+  } catch (error) {
+    console.error("POINTS FETCH ERROR:", error);
 
-  } catch (err) {
-    console.error("POINTS API ERROR:", err);
-
-    // IMPORTANT: even errors return CORS headers
     return new Response(
-      JSON.stringify({
-        totalpoints: 0,
-        error: "Server error",
-      }),
+      JSON.stringify({ totalpoints: 0 }),
       { status: 500, headers: corsHeaders }
     );
   }

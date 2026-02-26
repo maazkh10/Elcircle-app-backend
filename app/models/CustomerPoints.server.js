@@ -1,18 +1,26 @@
-
 import mongoose from "../lib/db.server";
 
 const schema = new mongoose.Schema({
-    email: String,
-    totalpoints : {type: Number, default: 0},
-    availablePoints: { type: Number, default: 0 },
-    order:[
-        {
-            orderId : String,
-            pointsEarned: Number,
-            date: Date
-        }
-    ]
+  shop: { type: String, required: true },
+  email: { type: String, required: true },
+  totalpoints: { type: Number, default: 0 },
+  availablePoints: { type: Number, default: 0 },
+  order: [
+    {
+      orderId: String,
+      pointsEarned: Number,
+      date: Date
+    }
+  ],
+  redeemed: [
+    {
+      orderId: String,
+      pointsUsed: Number,
+      date: Date
+    }
+  ]
 });
 
-export default mongoose.model.CustomerPoints ||
- mongoose.model("CustomerPoints" , schema);
+// ✅ THIS IS THE CORRECT WAY
+export default mongoose.models.CustomerPoints ||
+  mongoose.model("CustomerPoints", schema);

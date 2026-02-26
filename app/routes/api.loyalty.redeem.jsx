@@ -1,143 +1,103 @@
-import { connect } from "mongoose";
 import prisma from "../db.server";
 import CustomerPoints from "../models/CustomerPoints.server";
 
+export const handle = { unauthenticated: true };
 
-/* ----------------------------------
-   COMMON CORS HEADERS
----------------------------------- */
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
-  "Access-Control-Allow-Headers": "Content-Type",
-  "Content-Type": "application/json",
+  "Access-Control-Allow-Methods": "GET, OPTIONS",
+  "Access-Control-Allow-Headers": "Content-Type, ngrok-skip-browser-warning",
 };
 
-/* ----------------------------------
-   LOADER (Handles OPTIONS Prefetch)
----------------------------------- */
-export const loader = async ({ request }) => {
-  // await connectDB()
-  if (request.method === "OPTIONS") {
-    return new Response(null, {
-      status: 204,
-      headers: corsHeaders,
-    });
-  }
-
-  return new Response("OK", { headers: corsHeaders });
-};
-
-/* ----------------------------------
-   ACTION (REDEEM POINTS)
----------------------------------- */
 export const action = async ({ request }) => {
   try {
-    const { email, points, shop } = await request.json();
+    const form = await request.formData();
+    const email = form.get("email")?.toLowerCase().trim();
+    const shop = form.get("shop");
+    const points = Number(form.get("points"));
 
-    if (!email || !points || !shop) {
-      throw new Error("Missing data");
+    if (!email || !shop || !points) {
+      throw new Error("Missing parameters");
     }
 
-    /* ---------- CUSTOMER ---------- */
-    const customerDoc = await CustomerPoints.findOne({
-      email: email.toLowerCase(),
+    const cleanShop = shop.replace(/^https?:\/\//, "").replace(/\/$/, "");
+
+    const customer = await CustomerPoints.findOne({
+      shop: cleanShop,
+      email
     });
 
-    if (!customerDoc) {
-      throw new Error("Customer not found");
-    }
+    if (!customer) throw new Error("Customer not found");
+    if (customer.totalpoints < points) throw new Error("Not enough points");
 
-    if (customerDoc.availablePoints < points) {
-      throw new Error("Not enough points");
-    }
+    const discountAmount = (points * 0.1).toFixed(2);
 
-    /* ---------- LOAD OFFLINE TOKEN ---------- */
     const session = await prisma.session.findFirst({
-      where: {
-        shop,
-        isOnline: false,
-      },
+      where: { shop: cleanShop, isOnline: false },
     });
 
-    if (!session) {
-      throw new Error("Offline session not found");
-    }
+    if (!session) throw new Error("No Shopify session found");
 
-    const accessToken = session.accessToken;
+    const discountCode = `LOYALTY-${points}-${Math.random()
+      .toString(36)
+      .substring(2, 7)
+      .toUpperCase()}`;
 
-    /* ---------- CALCULATE DISCOUNT ---------- */
-    // Example: 1 point = 0.1 AED
-    const discountValue = (points * 0.1).toFixed(2);
-
-    const discountCode =
-      `LOYALTY-${points}-` +
-      Math.random().toString(36).substring(2, 6).toUpperCase();
-
-    /* ---------- CREATE SHOPIFY DISCOUNT ---------- */
-    const shopifyResponse = await fetch(
-      `https://${shop}/admin/api/2024-10/graphql.json`,
+    const response = await fetch(
+      `https://${cleanShop}/admin/api/2024-01/graphql.json`,
       {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          "X-Shopify-Access-Token": accessToken,
+          "X-Shopify-Access-Token": session.accessToken,
+
         },
+
         body: JSON.stringify({
           query: `
-            mutation discountCodeBasicCreate($basicCodeDiscount: DiscountCodeBasicInput!) {
-              discountCodeBasicCreate(basicCodeDiscount: $basicCodeDiscount) {
-                codeDiscountNode { id }
-                userErrors { message }
-              }
-            }
-          `,
-          variables: {
-            basicCodeDiscount: {
+          mutation {
+            discountCodeBasicCreate(basicCodeDiscount: {
               title: "Loyalty Discount",
-              code: discountCode,
-              startsAt: new Date().toISOString(),
+              code: "${discountCode}",
+              startsAt: "${new Date().toISOString()}",
               customerSelection: { all: true },
-              // neeed to change this true after testing 
-              appliesOncePerCustomer: false,
-            //  need to change this to 1 after testing 
-              usageLimit: 1, 
               customerGets: {
                 value: {
                   discountAmount: {
-                    amount: discountValue,
-                    appliesOnEachItem: false,
-                  },
+                    amount: "${discountAmount}",
+                    appliesOnEachItem: false
+                  }
                 },
-                items: { all: true },
-              },
-            },
-          },
+                items: { all: true }
+              }
+            }) {
+              userErrors { message }
+            }
+          }
+          `,
         }),
       }
     );
 
-    const result = await shopifyResponse.json();
+    const json = await response.json();
 
-    if (result.errors?.length) {
-      throw new Error(result.errors[0].message);
+    const errors =
+      json?.data?.discountCodeBasicCreate?.userErrors || [];
+
+    if (errors.length > 0) {
+      throw new Error(errors[0].message);
     }
 
     return new Response(
       JSON.stringify({ success: true, discountCode }),
-      {
-        status: 200,
-        headers: corsHeaders,
-      }
+      { status: 200 ,  headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
 
   } catch (err) {
+    console.error("REDEEM ERROR:", err);
     return new Response(
-      JSON.stringify({ error: err.message }),
-      {
-        status: 500,
-        headers: corsHeaders,
-      }
+      JSON.stringify({ success: false, error: err.message }),
+      { status: 500 }
     );
   }
 };

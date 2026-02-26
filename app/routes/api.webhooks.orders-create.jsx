@@ -6,18 +6,31 @@ export const action  = async ({ request }) => {
 
   const order = await request.json();
 
+const shop = request.headers.get("x-shopify-shop-domain");
+
+
+
+
   const email = order.customer?.email;
+
   
+
+  if (order.financial_status !== "paid") {
+      return new Response("Waiting for payment", { status: 200 });
+    }
+
+
   if (!email) return new Response("No customer");
 
   const orderTotal = Number(order.total_price);
   
   const earnedPoints = orderTotal;
 
-  let customer = await CustomerPoints.findOne({ email });
+  let customer = await CustomerPoints.findOne({ shop, email });
 
   if (!customer) {
     await CustomerPoints.create({
+      shop,
       email,
       totalpoints: earnedPoints,
       availablePoints: earnedPoints,

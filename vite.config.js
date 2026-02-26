@@ -37,7 +37,11 @@ if (host === "localhost") {
 
 export default defineConfig({
   server: {
-    allowedHosts: [host],
+     allowedHosts: [
+    host,                               // Shopify app host
+    "regina-cycadlike-senatorially.ngrok-free.dev"  // ✅ ngrok tunnel
+  ],
+
     cors: {
       preflightContinue: true,
     },
