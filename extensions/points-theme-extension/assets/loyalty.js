@@ -5,8 +5,17 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   /* ---------------- FETCH POINTS ---------------- */
   try {
-    const res = await fetch(
-      `${URL}/api/loyalty/points?email=${window.customerEmail}&shop=${window.Shopify.shop}`,
+
+    const email  = window.customerEmail?.toLowerCase().trim()
+
+    const shop = window.Shopify?.shop;
+    if (!email) {
+      console.log("No custonmer email found")
+      return;
+    }
+const res = await fetch(
+  `${URL}/api/loyalty/points?email=${email}&shop=${shop}`,
+      // `${URL}/api/loyalty/points?email=${window.customerEmail}&shop=${window.Shopify.shop}`,
       { headers: { "ngrok-skip-browser-warning": "true" } }
     );
 
@@ -48,8 +57,8 @@ document.addEventListener("DOMContentLoaded", async () => {
       },
       body: new URLSearchParams({
         email: window.customerEmail,
-        points: "50",
-        shop: window.shopDomain,
+        points: "90",
+        shop: window.Shopify?.shop,
       }),
     });
 

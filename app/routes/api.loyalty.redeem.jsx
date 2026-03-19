@@ -5,13 +5,44 @@ export const handle = { unauthenticated: true };
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Methods": "GET, OPTIONS",
+  "Access-Control-Allow-Methods": "GET, POST, OPTIONS", 
   "Access-Control-Allow-Headers": "Content-Type, ngrok-skip-browser-warning",
 };
 
+export const loader = async ({request}) =>{
+  if (request.method === "OPTIONS") {
+    return new Response(null, {
+      status: 204,
+      headers: corsHeaders
+    })
+  }
+
+  return new Response(
+    JSON.stringify({message: "Ok redem api"}),
+    {
+      status: 200,
+      headers:{
+        ...corsHeaders,
+        "Content-Type": "application/json",
+
+      }
+    }
+  )
+}
+
+
 export const action = async ({ request }) => {
+
+  if (request.method === "OPTIONS") {
+    return new Response(null , {
+      status: 204,
+      headers: corsHeaders
+    })
+  }
+
   try {
     const form = await request.formData();
+
     const email = form.get("email")?.toLowerCase().trim();
     const shop = form.get("shop");
     const points = Number(form.get("points"));
@@ -20,15 +51,31 @@ export const action = async ({ request }) => {
       throw new Error("Missing parameters");
     }
 
-    const cleanShop = shop.replace(/^https?:\/\//, "").replace(/\/$/, "");
+    const cleanShop = shop
+      .replace(/^https?:\/\//, "")
+      .replace(/\/$/, "");
 
-    const customer = await CustomerPoints.findOne({
-      shop: cleanShop,
-      email
-    });
+    // ✅ FIX: GLOBAL USER (IGNORE SHOP)
+    const customer = await CustomerPoints.findOne({ email });
 
     if (!customer) throw new Error("Customer not found");
-    if (customer.totalpoints < points) throw new Error("Not enough points");
+
+    if (customer.totalpoints < points) {
+      throw new Error("Not enough points");
+    }
+
+    // ✅ OPTIONAL: deduct points immediately
+    customer.totalpoints -= points;
+    customer.availablePoints -= points;
+
+    // track redemption
+    customer.redeemed.push({
+      orderId: "manual", // you can improve later
+      pointsUsed: points,
+      date: new Date(),
+    });
+
+    await customer.save();
 
     const discountAmount = (points * 0.1).toFixed(2);
 
@@ -50,9 +97,7 @@ export const action = async ({ request }) => {
         headers: {
           "Content-Type": "application/json",
           "X-Shopify-Access-Token": session.accessToken,
-
         },
-
         body: JSON.stringify({
           query: `
           mutation {
@@ -90,14 +135,23 @@ export const action = async ({ request }) => {
 
     return new Response(
       JSON.stringify({ success: true, discountCode }),
-      { status: 200 ,  headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      {
+        status: 200,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      }
     );
 
   } catch (err) {
     console.error("REDEEM ERROR:", err);
+
     return new Response(
       JSON.stringify({ success: false, error: err.message }),
-      { status: 500 }
+      { status: 500 , 
+        headers:{
+          ...corsHeaders ,
+            "Content-Type": "application/json",
+        }
+      }
     );
   }
 };

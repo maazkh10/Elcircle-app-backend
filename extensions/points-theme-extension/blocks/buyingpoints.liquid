@@ -1,0 +1,68 @@
+<h2>Buy Points</h2>
+
+
+
+<input type="number" id="pointsinput" 
+placeholder="Enter Points"/>
+
+<button id="buyPoints">Buy Now</button>
+
+<script>
+window.customerEmail = "{{ customer.email }}";
+</script>
+
+
+<script>
+  document.addEventListener("DOMContentLoaded" , ()=>{
+
+
+  console.log("SCRIPT RUNNING")
+
+    const API = "https://regina-cycadlike-senatorially.ngrok-free.dev"
+
+    document.getElementById("buyPoints").addEventListener("click" , async ()=>{
+
+    const points  = Number(document.getElementById("pointsinput").value)
+
+    if (!points || points <= 0) {
+      alert("Enter valid points")
+      return 
+    }
+
+
+    const res = await fetch(`${API}/api/loyalty/buy-points`, {
+      method:"POST",
+      headers:{ "Content-Type":"application/json" },
+      body: JSON.stringify({
+        email: window.customerEmail,
+        shop: window.Shopify.shop,
+        points
+      })
+    });
+
+    const data = await res.json()
+
+        if (data.success && data.checkoutUrl) {
+        window.location.href = data.checkoutUrl;
+      } else {
+        console.error("❌ ERROR:", data);
+        alert(data.error || "Checkout failed");
+      }
+
+    console.log("api res" , data)
+
+    if (data.success) {
+     window.location.href = data.checkoutUrl
+    }else{
+      alert(data.error)
+    }
+    })
+  })
+</script>
+{% schema %}
+{
+  "name": "Buying Points",
+  "target": "section",
+  "settings": []
+}
+{% endschema %}

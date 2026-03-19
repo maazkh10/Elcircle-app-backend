@@ -1,35 +1,28 @@
-
 import CustomerPoints from "../models/CustomerPoints.server";
- 
-export const loader = async () =>{
-  return new Response ("Webhook endpoints active" , {status: 200})
-}
 
+export const loader = async () => {
+  return new Response("Webhook active", { status: 200 });
+};
 
 export const action = async ({ request }) => {
+
   try {
-    console.log("webhook hit 💕");
+
+    console.log("WEBHOOK HIT");
 
     const shop = request.headers.get("x-shopify-shop-domain");
+
     const order = await request.json();
 
-    if (!shop) {
-      console.log("shop not found");
-      return new Response("No shop", { status: 200 });
-    }
-
-    if (order.financial_status !== "paid") {
-      console.log("waiting for payment");
-      return new Response("Waiting for payment", { status: 200 });
-    }
-
     const email = order.customer?.email?.toLowerCase().trim();
-    if (!email) {
-      console.log("no email found");
-      return new Response("No email", { status: 200 });
+
+    if (!shop || !email) {
+      return new Response("Missing data", { status: 200 });
     }
 
-    const orderTotal = Number(order.total_price);
+    /* ===============================
+       FIND CUSTOMER IN DB
+    =============================== */
 
     let customer = await CustomerPoints.findOne({ shop, email });
 
@@ -38,29 +31,56 @@ export const action = async ({ request }) => {
         shop,
         email,
         totalpoints: 0,
+        availablePoints: 0,
         order: [],
         redeemed: []
       });
     }
 
     /* ===============================
-       CHECK IF LOYALTY CODE USED
+       BUY POINTS DETECTION
+    =============================== */
+
+    const pointsPurchase = order.line_items.find(
+      item => item.title.includes("Buy Loyalty Points")
+    );
+
+    if (pointsPurchase) {
+
+      const points = Number(pointsPurchase.price) * pointsPurchase.quantity;
+
+      customer.totalpoints += points;
+      customer.availablePoints += points;
+
+      customer.order.push({
+        orderId: order.id,
+        pointsEarned: points,
+        date: new Date()
+      });
+
+      await customer.save();
+
+      console.log("Points purchased:", points);
+
+      return new Response("Points added", { status: 200 });
+    }
+
+    /* ===============================
+       REDEEM POINTS
     =============================== */
 
     const discountCodes = order.discount_codes || [];
-    const loyaltyCode = discountCodes.find((d) =>
-      d.code.toUpperCase().startsWith("LOYALTY-")
+
+    const loyaltyCode = discountCodes.find(d =>
+      d.code.startsWith("LOYALTY-")
     );
 
     if (loyaltyCode) {
+
       const usedPoints = Number(loyaltyCode.code.split("-")[1]);
 
-      if (customer.totalpoints < usedPoints) {
-        console.log("Not enough points to deduct");
-        return new Response("Not enough points", { status: 200 });
-      }
-
       customer.totalpoints -= usedPoints;
+      customer.availablePoints -= usedPoints;
 
       customer.redeemed.push({
         orderId: order.id,
@@ -70,18 +90,19 @@ export const action = async ({ request }) => {
 
       await customer.save();
 
-      console.log("Points deducted:", usedPoints);
+      console.log("Points redeemed:", usedPoints);
 
       return new Response("Points deducted", { status: 200 });
     }
 
     /* ===============================
-       ELSE → EARN POINTS
+       NORMAL ORDER → EARN POINTS
     =============================== */
 
-    const earnedPoints = orderTotal;
+    const earnedPoints = Number(order.total_price);
 
     customer.totalpoints += earnedPoints;
+    customer.availablePoints += earnedPoints;
 
     customer.order.push({
       orderId: order.id,
@@ -93,10 +114,14 @@ export const action = async ({ request }) => {
 
     console.log("Points earned:", earnedPoints);
 
-    return new Response("Points updated", { status: 200 });
+    return new Response("Points earned", { status: 200 });
 
   } catch (error) {
+
     console.error("Webhook Error:", error);
+
     return new Response("Error", { status: 200 });
+
   }
+
 };
