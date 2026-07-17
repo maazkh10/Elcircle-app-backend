@@ -1,37 +1,653 @@
+<div class="maison-loyalty-wrapper">
+  <!-- Elegant Trigger Banner -->
+  <button type="button" class="maison-trigger-btn" id="open-loyalty-modal">
+    <span>Earn 20 AED ($5.50) in Points on this piece.</span>
+    <span class="maison-link-accent">Redeem Rewards</span>
+  </button>
 
-<div id="loyalty-points-box" style="margin-top:20px;">
+  <!-- Premium Minimalist Modal -->
+  <div class="maison-modal-overlay" id="loyalty-modal">
+    <div class="maison-modal-window">
+      <button type="button" class="maison-modal-close" id="close-loyalty-modal" aria-label="Close Summary">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2">
+          <path d="M18 6L6 18M6 6l12 12"/>
+        </svg>
+      </button>
 
-  {% if customer %}
-    <p id="points-text">Loading points...</p>
+      {% if customer %}
+        <!-- LOGGED IN VIEW -->
+        <div class="maison-loyalty-content">
+          <header class="el-header">
+            <span class="el-eyebrow">THE SOVEREIGN ARCHIVE</span>
+            <h4 class="el-balance-label">Your Balance</h4>
+            <div id="points-text" class="el-points-display">
+              <span id="points-number">120</span> <!-- Dynamic placeholder -->
+            </div>
+            <p class="el-unit-label">AVAILABLE ERCIRCLE POINTS</p>
 
-    <label style="display:block;">
-      <input type="radio" name="use_points" value="yes">
-      Use my points
-    </label>
 
-    <label style="display:block;">
-      <input type="radio" name="use_points" value="no" checked>
-      Do not use points
-    </label>
-  {% else %}
-    <p>Please login to use reward points</p>
-  {% endif %}
-
+<!-- Insert this inside the LOGGED IN VIEW, right under the slider panel div -->
+<div class="el-action-wrapper" style="margin-top: 20px;">
+  <button type="button" class="maison-btn maison-btn-primary" id="el-redeem-btn">
+    Apply Coupon to Cart
+  </button>
+  <div id="el-status-message" class="el-text" style="text-align: center; margin-top: 8px; font-size: 11px; display: none;"></div>
 </div>
 
-<script>
+          </header>
+
+          <div class="el-selection">
+            <label class="el-radio-item">
+              <input type="radio" name="use_points" value="no" id="use-points-no" checked>
+              <div class="el-radio-custom"></div>
+              <span class="el-text">Retain balance for later</span>
+            </label>
+
+            <label class="el-radio-item">
+              <input type="radio" name="use_points" value="yes" id="use-points-yes">
+              <div class="el-radio-custom"></div>
+              <span class="el-text">Apply rewards to acquisition</span>
+            </label>
+          </div>
+
+          <div id="el-slider-panel" class="el-slider-drawer">
+            <div class="el-slider-readout">
+              <span class="el-text el-slider-points-label">Points to redeem: <strong id="el-slider-points-val">20</strong></span>
+              <span class="el-text el-slider-saving-label">Saving: <strong id="el-slider-monetary-val">20.00</strong> AED</span>
+            </div>
+            <div class="el-range-wrapper">
+              <input type="range" id="el-points-slider" min="20" max="120" step="20" value="20">
+            </div>
+            <p class="el-unit-label el-slider-hint">Minimum redemption: 20 points</p>
+          </div>
+
+          <footer class="el-footer">
+            <a href="https://dashboard-customer.myshopify.com/pages/reward-page" target="_blank" class="el-discovery">
+              DISCOVER THE ECOSYSTEM
+              <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="el-icon">
+                <path d="M7 17L17 7M17 7H7M17 7V17"/>
+              </svg>
+            </a>
+          </footer>
+        </div>
+
+      {% else %}
+        <!-- GUEST VIEW -->
+        <div class="maison-guest-content">
+          <span class="el-eyebrow">THE SOVEREIGN ARCHIVE</span>
+          <h3 class="maison-guest-title">Unlock Member Rewards</h3>
+          <p class="maison-guest-desc">Create an account or authenticate your status to claim your complementary points balance towards this acquisition.</p>
+          
+          <div class="maison-auth-actions">
+            <a href="/account/login" class="maison-btn maison-btn-primary">Sign In</a>
+            <a href="/account/register" class="maison-btn maison-btn-secondary">Create Account</a>
+          </div>
+        </div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+
+<style>
+  :root {
+    --el-gold: #b89c5a;
+    --el-line: rgba(0, 0, 0, 0.08);
+    --el-text: #1c1c1c;
+    --el-muted: #7A7A7A;
+    --el-bg: #ffffff;
+  }
+
+  /* Trigger Button Configuration */
+  .maison-loyalty-wrapper {
+    margin: 24px 0;
+  }
+
+  .maison-trigger-btn {
+    background: transparent;
+    border: none;
+    padding: 0;
+    margin: 0;
+    font-family: var(--font-sans, sans-serif);
+    font-size: 13px;
+    letter-spacing: 0.5px;
+    color: var(--el-text);
+    cursor: pointer;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    align-items: center;
+    text-align: left;
+  }
+
+  .maison-link-accent {
+    color: var(--el-gold);
+    text-decoration: underline;
+    text-underline-offset: 4px;
+    font-weight: 400;
+    transition: opacity 0.2s ease;
+  }
+
+  .maison-trigger-btn:hover .maison-link-accent {
+    opacity: 0.8;
+  }
+
+  /* Modal Backdrop Styling */
+  .maison-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.4);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.4s cubic-bezier(0.25, 1, 0.5, 1);
+  }
+
+  .maison-modal-overlay.is-open {
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  /* Modal Surface Structural Architecture */
+  .maison-modal-window {
+    background: var(--el-bg);
+    width: 100%;
+    max-width: 460px;
+    padding: 48px 40px;
+    box-sizing: border-box;
+    position: relative;
+    border: 1px solid var(--el-line);
+    transform: translateY(20px);
+    transition: transform 0.4s cubic-bezier(0.25, 1, 0.5, 1);
+  }
+
+  .maison-modal-overlay.is-open .maison-modal-window {
+    transform: translateY(0);
+  }
+
+  .maison-modal-close {
+    position: absolute;
+    top: 24px;
+    right: 24px;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    color: var(--el-text);
+    opacity: 0.5;
+    padding: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: opacity 0.2s ease;
+  }
+
+  .maison-modal-close:hover {
+    opacity: 1;
+  }
+
+  /* Guest View Elements */
+  .maison-guest-content {
+    text-align: center;
+  }
+
+  .maison-guest-title {
+    font-family: var(--font-serif, serif);
+    font-size: 22px;
+    font-weight: 400;
+    margin: 16px 0 12px 0;
+    color: var(--el-text);
+    letter-spacing: -0.2px;
+  }
+
+  .maison-guest-desc {
+    font-family: var(--font-sans, sans-serif);
+    font-size: 13px;
+    line-height: 1.6;
+    color: var(--el-muted);
+    margin-bottom: 32px;
+  }
+
+  .maison-auth-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .maison-btn {
+    display: block;
+    width: 100%;
+    padding: 14px 0;
+    font-family: var(--font-sans, sans-serif);
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    text-decoration: none;
+    text-align: center;
+    box-sizing: border-box;
+    transition: all 0.3s ease;
+  }
+
+  .maison-btn-primary {
+    background: var(--el-text);
+    color: #fff;
+  }
+
+  .maison-btn-primary:hover {
+    background: #000;
+  }
+
+  .maison-btn-secondary {
+    background: transparent;
+    color: var(--el-text);
+    border: 1px solid var(--el-text);
+  }
+
+  .maison-btn-secondary:hover {
+    background: rgba(0, 0, 0, 0.02);
+  }
+
+  /* Refined Core Elements (From your baseline styles) */
+  .el-header {
+    margin-bottom: 24px;
+    text-align: center;
+  }
+
+  .el-eyebrow {
+    font-family: var(--font-sans, sans-serif);
+    font-size: 9px;
+    letter-spacing: 3px;
+    color: var(--el-muted);
+    display: block;
+    margin-bottom: 8px;
+    text-transform: uppercase;
+  }
+
+  .el-balance-label {
+    font-family: var(--font-serif, serif);
+    font-size: 15px;
+    font-style: italic;
+    color: var(--el-text);
+    font-weight: 400;
+    margin: 0;
+  }
+
+  .el-points-display {
+    font-family: var(--font-serif, serif);
+    font-size: 48px;
+    color: var(--el-text);
+    line-height: 1;
+    margin: 8px 0;
+  }
+
+  .el-unit-label {
+    font-family: var(--font-sans, sans-serif);
+    font-size: 9px;
+    letter-spacing: 1.5px;
+    color: var(--el-muted);
+    text-transform: uppercase;
+    margin: 0;
+  }
+
+  .el-selection {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-bottom: 24px;
+  }
+
+  .el-radio-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    cursor: pointer;
+    position: relative;
+  }
+
+  .el-radio-item input {
+    position: absolute;
+    opacity: 0;
+  }
+
+  .el-radio-custom {
+    width: 14px;
+    height: 14px;
+    border: 1px solid var(--el-line);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-sizing: border-box;
+  }
+
+  .el-radio-item input:checked + .el-radio-custom {
+    border-color: var(--el-gold);
+    background: var(--el-gold);
+    box-shadow: inset 0 0 0 3px var(--el-bg);
+  }
+
+  .el-text {
+    font-family: var(--font-sans, sans-serif);
+    font-size: 13px;
+    color: var(--el-text);
+    font-weight: 300;
+  }
+
+  /* Slider Panels and Inputs */
+  .el-slider-drawer {
+    display: none; 
+    margin-bottom: 24px; 
+    padding: 20px;
+    background: rgba(0, 0, 0, 0.01);
+    border: 1px solid var(--el-line);
+  }
+
+  .el-slider-readout {
+    display: flex; 
+    justify-content: space-between; 
+    margin-bottom: 12px;
+    align-items: center;
+  }
+
+  .el-slider-saving-label {
+    color: var(--el-gold) !important; 
+    font-weight: 500;
+  }
+
+  .el-range-wrapper {
+    padding: 6px 0;
+  }
+
+  #el-points-slider {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 100%;
+    height: 2px;
+    background: var(--el-line);
+    outline: none;
+  }
+
+  #el-points-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: var(--el-gold);
+    cursor: grab;
+    border: 2px solid var(--el-bg);
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  }
+
+  .el-slider-hint {
+    font-size: 8px !important; 
+    text-align: center; 
+    margin-top: 10px; 
+    opacity: 0.5;
+  }
+
+  .el-footer {
+    text-align: center;
+    margin-top: 16px;
+  }
+
+  .el-discovery {
+    font-family: var(--font-sans, sans-serif);
+    font-size: 9px;
+    letter-spacing: 1.5px;
+    color: var(--el-muted);
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .el-discovery:hover {
+    color: var(--el-gold);
+  }
+</style>
+
+{% comment %} <script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const modal = document.getElementById('loyalty-modal');
+    const openBtn = document.getElementById('open-loyalty-modal');
+    const closeBtn = document.getElementById('close-loyalty-modal');
+
+    // UI Toggle events
+    if (openBtn && modal) {
+      openBtn.addEventListener('click', () => modal.classList.add('is-open'));
+    }
+    if (closeBtn && modal) {
+      closeBtn.addEventListener('click', () => modal.classList.remove('is-open'));
+      modal.addEventListener('click', (e) => {
+        if (e.target === modal) modal.classList.remove('is-open');
+      });
+    }
+
+    // Logic for Points Panel if customer session exists
+    const radioYes = document.getElementById('use-points-yes');
+    const radioNo = document.getElementById('use-points-no');
+    const sliderPanel = document.getElementById('el-slider-panel');
+    const slider = document.getElementById('el-points-slider');
+    const pointsValText = document.getElementById('el-slider-points-val');
+    const monetaryValText = document.getElementById('el-slider-monetary-val');
+    const pointsNumber = document.getElementById('points-number');
+    
+    if (radioYes && radioNo && sliderPanel) {
+      const toggleSliderView = () => {
+        sliderPanel.style.display = radioYes.checked ? 'block' : 'none';
+      };
+
+
+      // oddod thing out here 
+      const customerEmail = {{customer.email |  json}}
+
+      const shopDomain = {{shop.permanent_domain |  json}}
+
+
+      fetch(` https://regina-cycadlike-senatorially.ngrok-free.dev/api/api.loyalty.get-points?email=${encodeURIComponent(customerEmail)}&shop=${shopDomain}`)
+      .then(res => res.json())
+      .then(data =>{
+        const liveOdooPoints = data.points || 0 ;
+        console.log(`oddo point live one ${liveOdooPoints}`)
+
+        if (pointsNumber) {
+          
+        }
+      })
+
+      if (customerEmail) {
+        console.log(`[oddo fetch] Fetching points ${customerEmail}....`)
+      }
+
+      radioYes.addEventListener('change', toggleSliderView);
+      radioNo.addEventListener('change', toggleSliderView);
+
+      if (slider) {
+        slider.addEventListener('input', function() {
+          const currentPoints = this.value;
+          // Example logic mapping 1 point = 1 AED adjustment
+          const dynamicCashback = parseFloat(currentPoints).toFixed(2);
+          
+          if(pointsValText) pointsValText.textContent = currentPoints;
+          if(monetaryValText) monetaryValText.textContent = dynamicCashback;
+        });
+      }
+    }
+  });
+
   window.customerEmail = {{ customer.email | json }};
   window.shopDomain = {{ shop.permanent_domain | json }};
+</script> {% endcomment %}
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const modal = document.getElementById('loyalty-modal');
+    const openBtn = document.getElementById('open-loyalty-modal');
+    const closeBtn = document.getElementById('close-loyalty-modal');
+
+    // UI Toggle events
+    if (openBtn && modal) {
+      openBtn.addEventListener('click', () => modal.classList.add('is-open'));
+    }
+    if (closeBtn && modal) {
+      closeBtn.addEventListener('click', () => modal.classList.remove('is-open'));
+      modal.addEventListener('click', (e) => {
+        if (e.target === modal) modal.classList.remove('is-open');
+      });
+    }
+
+    // Logic for Points Panel if customer session exists
+    const radioYes = document.getElementById('use-points-yes');
+    const radioNo = document.getElementById('use-points-no');
+    const sliderPanel = document.getElementById('el-slider-panel');
+    const slider = document.getElementById('el-points-slider');
+    const pointsValText = document.getElementById('el-slider-points-val');
+    const monetaryValText = document.getElementById('el-slider-monetary-val');
+    const pointsNumber = document.getElementById('points-number');
+
+    const redeemBtn = document.getElementById("el-redeem-btn");
+    const statusMsg = document.getElementById("el-status-message");
+    
+    const customerEmail = {{ customer.email | json }};
+    const shopDomain = {{ shop.permanent_domain | json }};
+    const BASE_API = "https://regina-cycadlike-senatorially.ngrok-free.dev";
+
+    if (customerEmail) {
+      fetch(`${BASE_API}/api/loyalty/get-points?email=${encodeURIComponent(customerEmail)}&shop=${shopDomain}`, {
+        method: "GET",   
+        headers: {
+          "ngrok-skip-browser-warning": "true",
+          "Accept": "application/json",
+          "Content-Type": "application/json"
+        }
+      })
+      .then(res => {
+        if (!res.ok) throw new Error(`HTTP error status ${res.status}`);
+        return res.json();
+      })
+      .then(data => {
+        const livePoints = data.points || 0;
+        console.log(`[ODOO FETCH SUCCESS] Live balance: ${livePoints}`);
+        if (pointsNumber) pointsNumber.textContent = livePoints;
+        
+        if (slider) {
+          // ⭐ FIXED: Removed the stray "i" text variable token causing the crash
+          slider.max = livePoints; 
+          
+          if (Number(livePoints) < 20) {
+            slider.min = "0";
+            slider.value = String(livePoints);
+            if (pointsValText) pointsValText.textContent = livePoints;
+            if (monetaryValText) monetaryValText.textContent = (livePoints / 20).toFixed(2);
+          } else {
+            slider.min = "20";
+            slider.value = "20"; // Defaults slider position to baseline redemption unit
+            if (pointsValText) pointsValText.textContent = "20";
+            if (monetaryValText) monetaryValText.textContent = "1.00";
+          }
+        }
+      })
+      .catch(err => console.error("Error fetching live Odoo points:", err));
+    }
+
+    if (radioYes && radioNo && sliderPanel) {
+      const toggleSliderView = () => {
+        sliderPanel.style.display = radioYes.checked ? 'block' : 'none';
+      };
+
+      radioYes.addEventListener('change', toggleSliderView);
+      radioNo.addEventListener('change', toggleSliderView);
+
+      if (slider) {
+        slider.addEventListener('input', function() {
+          const currentPoints = this.value;
+          const dynamicCashback = (parseFloat(currentPoints) / 20).toFixed(2);
+          
+          if (pointsValText) pointsValText.textContent = currentPoints;
+          if (monetaryValText) monetaryValText.textContent = dynamicCashback;
+        });
+      }
+    }
+
+    if (redeemBtn) {
+      redeemBtn.addEventListener("click" , async () => {
+        if (!radioYes.checked) {
+          alert("Please apply rewards to acquisition first.");
+          return;
+        }       
+
+        const selectedPoints = Number(slider.value);
+        if (!selectedPoints || selectedPoints < 20) {
+          alert("Minimum target should be 20 points.");
+          return;
+        }
+        
+        redeemBtn.disabled = true;
+        redeemBtn.textContent = "Generating reward...";
+
+        if (statusMsg) {
+          statusMsg.style.display = "block";
+          statusMsg.style.color = "gray";
+          statusMsg.textContent = "Processing points validation..."; // FIXED: Cleaned up placeholder typo string
+        }
+
+        try {
+          const response = await fetch(`${BASE_API}/api/loyalty/redeem` , {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              "ngrok-skip-browser-warning": "true",
+              "Accept": "application/json"
+            },
+            body: JSON.stringify({
+              email: customerEmail,
+              shop: shopDomain,
+              points: selectedPoints
+            })
+          });
+
+          const result = await response.json();
+          
+          // ⭐ FIXED: Swapped result.sucess to result.success to accurately catch backend response mapping
+          if (result.success && result.discountCode) {
+            statusMsg.style.color = "var(--el-gold)";
+            statusMsg.textContent = `Success! Code ${result.discountCode} created.`;
+
+            // ⭐ FIXED: Prefixed absolute path forward slash to load the URL properly
+            fetch(`/discount/${result.discountCode}`)
+              .then(() => {
+                statusMsg.textContent = "Discount Applied! Reloading page context...";
+                setTimeout(() => {
+                  window.location.reload();
+                }, 1000);
+              });
+          } else {
+            throw new Error(result.error || "Failed to issue coupon code instance.");
+          }
+        } catch (err) {
+          console.error("❌ Redemption Pipeline crashed:", err);
+          statusMsg.style.color = "red";
+          statusMsg.textContent = err.message || "Error setting calculation values.";
+          redeemBtn.disabled = false;
+          redeemBtn.textContent = "Apply Coupon to Cart";
+        }
+      });
+    }
+  });
 </script>
 
 
-
-<script src="{{ 'loyalty.js' | asset_url }}"></script>
 {% schema %}
 {
-  "name": "Points thing ",
+  "name": "Maison Rewards",
   "target": "section",
   "settings": []
 }
 {% endschema %}
-

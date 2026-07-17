@@ -1,64 +1,177 @@
-<h2>Buy Points</h2>
+<style>
+  .points-bar {
+    width: 100%;
+    background: #0a0a0a;
+    padding: 12px 18px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-top: 1px solid #1a1a1a;
+    border-bottom: 1px solid #1a1a1a;
+    font-family: Arial, sans-serif;
+  }
 
+  .points-title {
+    color: #fff;
+    font-size: 28px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+  }
 
+  .rate-info {
+    font-size: 24px;
+    color: #d4af37;
+    margin-left: 10px;
+  }
 
-<input type="number" id="pointsinput" 
-placeholder="Enter Points"/>
+  .points-group {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
 
-<button id="buyPoints">Buy Now</button>
+  .points-input {
+    /* width: 110px; */
+    padding: 20px;
+    background: #111;
+    border: 1px solid #2a2a2a;
+    border-radius: 4px;
+    color: #fff;
+    font-size: 26px;
+    text-align: center;
+    font-weight: 500;
+  }
+
+  .points-input:focus {
+    outline: none;
+    border-color: #d4af37;
+  }
+
+  .price-preview {
+    font-size: 26px;
+    font-weight: 600;
+    color: #fff;
+    min-width: 90px;
+    text-align: center;
+  }
+
+  .price-preview span {
+    color: #d4af37;
+  }
+
+  .buy-btn {
+    padding: 10px 20px;
+    background: #d4af37;
+    color: #000;
+    border: none;
+    border-radius: 4px;
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: 0.15s ease;
+  }
+
+  .buy-btn:hover {
+    background: #e6c65c;
+  }
+
+  @media (max-width: 600px) {
+    .points-bar {
+      flex-direction: column;
+      gap: 10px;
+      align-items: stretch;
+    }
+
+    .points-group {
+      width: 100%;
+      justify-content: space-between;
+    }
+
+    .buy-btn {
+      width: 100%;
+    }
+  }
+</style>
+
+<div class="points-bar">
+
+  <div style="display:flex; align-items:center;">
+    <div class="points-title">Buy Points</div>
+    <div class="rate-info">1$ = 1 Point</div>
+  </div>
+
+  <div class="points-group">
+
+    <input 
+      type="number" 
+      id="pointsinput"
+      class="points-input"
+      placeholder="Points"
+    />
+
+    <div class="price-preview">
+      $<span id="price">0</span>
+    </div>
+
+    <button id="buyPoints" class="buy-btn">
+      Buy Now
+    </button>
+
+  </div>
+</div>
 
 <script>
 window.customerEmail = "{{ customer.email }}";
 </script>
 
-
 <script>
-  document.addEventListener("DOMContentLoaded" , ()=>{
+document.addEventListener("DOMContentLoaded", () => {
 
+  const API = "https://regina-cycadlike-senatorially.ngrok-free.dev";
+  const input = document.getElementById("pointsinput");
+  const price = document.getElementById("price");
+  const button = document.getElementById("buyPoints");
 
-  console.log("SCRIPT RUNNING")
+  input.addEventListener("input", () => {
+    const points = Number(input.value) || 0;
+    price.textContent = (points * 1).toFixed(2);
+  });
 
-    const API = "https://regina-cycadlike-senatorially.ngrok-free.dev"
-
-    document.getElementById("buyPoints").addEventListener("click" , async ()=>{
-
-    const points  = Number(document.getElementById("pointsinput").value)
+  button.addEventListener("click", async () => {
+    const points = Number(input.value);
 
     if (!points || points <= 0) {
-      alert("Enter valid points")
-      return 
+      alert("Enter valid points");
+      return;
     }
 
+    try {
+      const res = await fetch(`${API}/api/loyalty/buy-points`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          email: window.customerEmail,
+          shop: window.Shopify.shop,
+          points
+        })
+      });
 
-    const res = await fetch(`${API}/api/loyalty/buy-points`, {
-      method:"POST",
-      headers:{ "Content-Type":"application/json" },
-      body: JSON.stringify({
-        email: window.customerEmail,
-        shop: window.Shopify.shop,
-        points
-      })
-    });
+      const data = await res.json();
 
-    const data = await res.json()
-
-        if (data.success && data.checkoutUrl) {
+      if (data.success && data.checkoutUrl) {
         window.location.href = data.checkoutUrl;
       } else {
-        console.error("❌ ERROR:", data);
         alert(data.error || "Checkout failed");
       }
 
-    console.log("api res" , data)
-
-    if (data.success) {
-     window.location.href = data.checkoutUrl
-    }else{
-      alert(data.error)
+    } catch (err) {
+      alert("Something went wrong");
     }
-    })
-  })
+  });
+
+});
 </script>
+
 {% schema %}
 {
   "name": "Buying Points",
