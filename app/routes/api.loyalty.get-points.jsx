@@ -26,6 +26,7 @@ export const loader = async ({ request }) => {
   }
 
   const url = new URL(request.url);
+
   const email = url.searchParams.get("email");
 
   if (!email) {
@@ -36,14 +37,19 @@ export const loader = async ({ request }) => {
   }
 
   try {
+
     const odooData = await getOdooPoints(email);
+
     const pointsBalance = odooData?.availablePoints || 0;
     
     console.log(`[PROXY SUCCESS] Dispatching ${pointsBalance} points to storefront for ${email}`);
 
     // 2. Return standard Response with raw stringified JSON data payload
+
     return new Response(JSON.stringify({ points: pointsBalance }), {
+
       status: 200,
+
       headers: headers
     });
 

@@ -229,7 +229,7 @@ if (!accessToken) throw new Error("Token missing for dynamic lookup key: " + tok
         title: "Loyalty Redemption Reward",
         code: discountCode,
         startsAt: new Date().toISOString(),
-        usageLimit: 7, // Kept at 7 instances maximum
+        usageLimit: 1, // Kept at 7 instances maximum
         appliesOncePerCustomer: true,
         customerSelection: { all: true },
         customerGets: {
@@ -283,10 +283,9 @@ if (!accessToken) throw new Error("Token missing for dynamic lookup key: " + tok
       });
     }
 
-    // Mirror updated point records down stream
+
     customer.totalpoints = Math.max(0, odooBalance - Number(points));
     customer.availablePoints = Math.max(0, odooBalance - Number(points));
-    
     customer.redeemed.push({ 
       pointsUsed: Number(points), 
       code: discountCode, 
@@ -295,12 +294,16 @@ if (!accessToken) throw new Error("Token missing for dynamic lookup key: " + tok
     });
     
     await customer.save();
-
+    
     console.log(`[SUCCESS] Created Code: ${discountCode} (${discountAmount} AED) for ${email}. Synced to Odoo & Mongo.`);
-
+    
     return new Response(JSON.stringify({ success: true, discountCode }), {
+    
       status: 200,
+    
       headers: { ...corsheader, "Content-Type": "application/json" },
+    
+    
     });
 
   } catch (err) {

@@ -1,181 +1,1374 @@
+{% comment %}
+  ============================================================================
+  BUYING POINTS - SHOPIFY APP BLOCK
+  ============================================================================
+
+  File:
+    blocks/buyingpoints.liquid
+
+  This is an APP BLOCK, therefore:
+    - use block.settings
+    - target must be "section"
+    - maximum 6 settings
+{% endcomment %}
+
+
+{%- liquid
+  assign block_id = 'buying-points-' | append: block.id
+  assign customer_points = customer.metafields.loyalty.points | default: 0
+-%}
+
+
 <style>
-  .points-bar {
+
+  /* ============================================================
+     SELECTED SHOPIFY FONT
+  ============================================================ */
+
+  {{ block.settings.font | font_face }}
+
+
+  /* ============================================================
+     ROOT
+  ============================================================ */
+
+  #{{ block_id }} {
+
+    --bp-bg: {{ block.settings.background_color }};
+    --bp-accent: {{ block.settings.accent_color }};
+
+    --bp-card: #ffffff;
+    --bp-text: #171717;
+    --bp-muted: #666666;
+    --bp-border: #dedede;
+
+    --bp-button-hover: #dc4525;
+
     width: 100%;
-    background: #0a0a0a;
-    padding: 12px 18px;
+    position: relative;
+    overflow: hidden;
+
+    font-family:
+      {{ block.settings.font.family }},
+      {{ block.settings.font.fallback_families }};
+
+    font-style:
+      {{ block.settings.font.style }};
+
+    font-weight:
+      {{ block.settings.font.weight }};
+
+    box-sizing: border-box;
+  }
+
+
+  #{{ block_id }} *,
+  #{{ block_id }} *::before,
+  #{{ block_id }} *::after {
+    box-sizing: border-box;
+  }
+
+
+  /* ============================================================
+     HERO
+  ============================================================ */
+
+  #{{ block_id }} .bp-hero {
+
+    position: relative;
+
+    width: 100%;
+    height: 560px;
+
+    overflow: hidden;
+
+    background: #b9c1c3;
+  }
+
+
+  /* ============================================================
+     HERO IMAGE
+  ============================================================ */
+
+  #{{ block_id }} .bp-hero-image {
+
+    position: absolute;
+
+    inset: 0;
+
+    width: 100%;
+    height: 100%;
+
+    display: block;
+
+    object-fit: cover;
+
+    object-position: center center;
+  }
+
+
+  /* ============================================================
+     IMAGE OVERLAY
+  ============================================================ */
+
+  #{{ block_id }} .bp-hero-overlay {
+
+    position: absolute;
+
+    inset: 0;
+
+    background:
+      linear-gradient(
+        90deg,
+        rgba(0, 0, 0, 0.24) 0%,
+        rgba(0, 0, 0, 0.08) 55%,
+        rgba(0, 0, 0, 0.02) 100%
+      );
+
+    z-index: 1;
+
+    pointer-events: none;
+  }
+
+
+  /* ============================================================
+     IMAGE PLACEHOLDER
+  ============================================================ */
+
+  #{{ block_id }} .bp-image-placeholder {
+
+    position: absolute;
+
+    inset: 0;
+
     display: flex;
+
     align-items: center;
-    justify-content: space-between;
-    border-top: 1px solid #1a1a1a;
-    border-bottom: 1px solid #1a1a1a;
-    font-family: Arial, sans-serif;
-  }
 
-  .points-title {
-    color: #fff;
-    font-size: 28px;
-    font-weight: 600;
-    letter-spacing: 0.5px;
-  }
+    justify-content: center;
 
-  .rate-info {
-    font-size: 24px;
-    color: #d4af37;
-    margin-left: 10px;
-  }
+    background:
+      linear-gradient(
+        135deg,
+        #cbd3d5,
+        #9daeb1
+      );
 
-  .points-group {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-  }
+    color: #ffffff;
 
-  .points-input {
-    /* width: 110px; */
-    padding: 20px;
-    background: #111;
-    border: 1px solid #2a2a2a;
-    border-radius: 4px;
-    color: #fff;
-    font-size: 26px;
+    font-size: 13px;
+
+    letter-spacing: 0.08em;
+
+    text-transform: uppercase;
+
     text-align: center;
+  }
+
+
+  /* ============================================================
+     HERO CONTENT
+  ============================================================ */
+
+  #{{ block_id }} .bp-hero-content {
+
+    position: relative;
+
+    z-index: 2;
+
+    width: calc(100% - 90px);
+
+    max-width: 1500px;
+
+    height: 100%;
+
+    margin: 0 auto;
+
+    padding-top: 62px;
+  }
+
+
+  /* ============================================================
+     EYEBROW
+  ============================================================ */
+
+  #{{ block_id }} .bp-eyebrow {
+
+    margin: 0 0 9px;
+
+    color: #ffffff;
+
+    font-size: 19px;
+
+    line-height: 1.2;
+
+    font-weight: 400;
+
+    letter-spacing: 0.02em;
+
+    text-transform: uppercase;
+
+    text-shadow:
+      0 1px 5px rgba(0, 0, 0, 0.2);
+  }
+
+
+  /* ============================================================
+     HERO TITLE
+  ============================================================ */
+
+  #{{ block_id }} .bp-title {
+
+    margin: 0;
+
+    max-width: 850px;
+
+    color: #ffffff;
+
+    font-size: 64px;
+
+    line-height: 0.98;
+
+    font-weight: 400;
+
+    letter-spacing: -0.025em;
+
+    text-transform: uppercase;
+
+    text-shadow:
+      0 2px 10px rgba(0, 0, 0, 0.18);
+  }
+
+
+  /* ============================================================
+     LOWER BLUE AREA
+  ============================================================ */
+
+  #{{ block_id }} .bp-lower {
+
+    position: relative;
+
+    background: var(--bp-bg);
+
+    min-height: 360px;
+
+    padding:
+      70px
+      20px
+      55px;
+  }
+
+
+  /* ============================================================
+     PURCHASE CARD
+  ============================================================ */
+
+  #{{ block_id }} .bp-card {
+
+    position: relative;
+
+    z-index: 5;
+
+    width: min(
+      100%,
+      920px
+    );
+
+    margin:
+      -23px
+      auto
+      0;
+
+    background: var(--bp-card);
+
+    border: 1px solid #e1e1e1;
+
+    border-radius: 0;
+
+    box-shadow:
+      0 18px 50px rgba(0, 0, 0, 0.15);
+
+    padding: 36px;
+
+    display: grid;
+
+    grid-template-columns:
+      minmax(0, 1.1fr)
+      minmax(270px, 0.65fr);
+
+    gap: 45px;
+  }
+
+
+  /* ============================================================
+     LEFT CONTENT
+  ============================================================ */
+
+  #{{ block_id }} .bp-left {
+    min-width: 0;
+  }
+
+
+  #{{ block_id }} .bp-greeting {
+
+    margin: 0 0 28px;
+
+    color: var(--bp-text);
+
+    font-size: 28px;
+
+    line-height: 1.12;
+
+    font-weight: 400;
+
+    letter-spacing: -0.02em;
+  }
+
+
+  #{{ block_id }} .bp-greeting strong {
     font-weight: 500;
   }
 
-  .points-input:focus {
-    outline: none;
-    border-color: #d4af37;
+
+  /* ============================================================
+     SELECT
+  ============================================================ */
+
+  #{{ block_id }} .bp-select-wrapper {
+
+    position: relative;
+
+    width: 100%;
   }
 
-  .price-preview {
-    font-size: 26px;
-    font-weight: 600;
-    color: #fff;
-    min-width: 90px;
-    text-align: center;
-  }
 
-  .price-preview span {
-    color: #d4af37;
-  }
+  #{{ block_id }} .bp-select {
 
-  .buy-btn {
-    padding: 10px 20px;
-    background: #d4af37;
-    color: #000;
-    border: none;
+    appearance: none;
+    -webkit-appearance: none;
+
+    width: 100%;
+
+    height: 50px;
+
+    padding:
+      0
+      50px
+      0
+      15px;
+
+    background: #ffffff;
+
+    border: 1px solid #b9b9b9;
+
     border-radius: 4px;
+
+    color: #222222;
+
+    font-family: inherit;
+
     font-size: 15px;
-    font-weight: 700;
+
+    font-weight: 400;
+
     cursor: pointer;
-    transition: 0.15s ease;
+
+    transition:
+      border-color 0.2s ease,
+      box-shadow 0.2s ease;
   }
 
-  .buy-btn:hover {
-    background: #e6c65c;
+
+  #{{ block_id }} .bp-select:hover {
+    border-color: #888888;
   }
 
-  @media (max-width: 600px) {
-    .points-bar {
-      flex-direction: column;
-      gap: 10px;
-      align-items: stretch;
+
+  #{{ block_id }} .bp-select:focus {
+
+    outline: none;
+
+    border-color: var(--bp-accent);
+
+    box-shadow:
+      0 0 0 3px
+      rgba(239, 82, 45, 0.12);
+  }
+
+
+  #{{ block_id }} .bp-select-arrow {
+
+    position: absolute;
+
+    right: 18px;
+
+    top: 50%;
+
+    width: 9px;
+
+    height: 9px;
+
+    border-right:
+      2px solid #333333;
+
+    border-bottom:
+      2px solid #333333;
+
+    transform:
+      translateY(-70%)
+      rotate(45deg);
+
+    pointer-events: none;
+  }
+
+
+  /* ============================================================
+     BALANCE
+  ============================================================ */
+
+  #{{ block_id }} .bp-balance {
+
+    margin: 18px 0 0;
+
+    color: var(--bp-muted);
+
+    font-size: 14px;
+
+    line-height: 1.4;
+  }
+
+
+  #{{ block_id }} .bp-balance strong {
+
+    color: var(--bp-text);
+
+    font-weight: 500;
+  }
+
+
+  /* ============================================================
+     RIGHT SUMMARY
+  ============================================================ */
+
+  #{{ block_id }} .bp-summary {
+
+    min-width: 0;
+
+    padding-left: 28px;
+
+    border-left:
+      1px solid #eeeeee;
+
+    display: flex;
+
+    flex-direction: column;
+
+    justify-content: center;
+  }
+
+
+  #{{ block_id }} .bp-summary-row {
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: space-between;
+
+    gap: 20px;
+
+    padding-bottom: 13px;
+
+    margin-bottom: 13px;
+
+    border-bottom:
+      1px solid #e7e7e7;
+
+    color: #333333;
+
+    font-size: 14px;
+
+    line-height: 1.4;
+  }
+
+
+  #{{ block_id }} .bp-summary-label {
+    color: #555555;
+  }
+
+
+  #{{ block_id }} .bp-summary-value {
+
+    color: #222222;
+
+    font-weight: 500;
+
+    text-align: right;
+
+    white-space: nowrap;
+  }
+
+
+  /* ============================================================
+     BUY BUTTON
+  ============================================================ */
+
+  #{{ block_id }} .bp-buy-button {
+
+    width: 100%;
+
+    min-height: 50px;
+
+    margin-top: 5px;
+
+    padding: 0 24px;
+
+    border: none;
+
+    border-radius: 0;
+
+    background: var(--bp-accent);
+
+    color: #ffffff;
+
+    font-family: inherit;
+
+    font-size: 15px;
+
+    font-weight: 600;
+
+    cursor: pointer;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    transition:
+      background 0.2s ease,
+      transform 0.2s ease,
+      opacity 0.2s ease;
+  }
+
+
+  #{{ block_id }} .bp-buy-button:hover {
+
+    background: var(--bp-button-hover);
+
+    transform:
+      translateY(-1px);
+  }
+
+
+  #{{ block_id }} .bp-buy-button:active {
+
+    transform:
+      translateY(0);
+  }
+
+
+  #{{ block_id }} .bp-buy-button:disabled {
+
+    opacity: 0.55;
+
+    cursor: not-allowed;
+
+    transform: none;
+  }
+
+
+  /* ============================================================
+     FEE NOTE
+  ============================================================ */
+
+  #{{ block_id }} .bp-fee-note {
+
+    margin: 12px 0 0;
+
+    color: #777777;
+
+    font-size: 11px;
+
+    line-height: 1.45;
+  }
+
+
+  /* ============================================================
+     LOGIN
+  ============================================================ */
+
+  #{{ block_id }} .bp-login {
+
+    padding: 18px;
+
+    background: #f7f7f7;
+
+    color: #555555;
+
+    font-size: 14px;
+
+    line-height: 1.5;
+  }
+
+
+  #{{ block_id }} .bp-login a {
+
+    color: #222222;
+
+    font-weight: 600;
+
+    text-decoration: underline;
+  }
+
+
+  /* ============================================================
+     TABLET
+  ============================================================ */
+
+  @media screen and (max-width: 900px) {
+
+    #{{ block_id }} .bp-hero {
+      height: 500px;
     }
 
-    .points-group {
+
+    #{{ block_id }} .bp-hero-content {
+
+      width: calc(100% - 50px);
+
+      padding-top: 55px;
+    }
+
+
+    #{{ block_id }} .bp-title {
+      font-size: 56px;
+    }
+
+
+    #{{ block_id }} .bp-card {
+
+      width: calc(100% - 20px);
+
+      grid-template-columns: 1fr;
+
+      gap: 28px;
+
+      padding: 30px;
+    }
+
+
+    #{{ block_id }} .bp-summary {
+
+      border-left: none;
+
+      border-top:
+        1px solid #eeeeee;
+
+      padding-left: 0;
+
+      padding-top: 28px;
+    }
+
+  }
+
+
+  /* ============================================================
+     MOBILE
+  ============================================================ */
+
+  @media screen and (max-width: 600px) {
+
+    #{{ block_id }} .bp-hero {
+      height: 400px;
+    }
+
+
+    #{{ block_id }} .bp-hero-content {
+
+      width: calc(100% - 40px);
+
+      padding-top: 42px;
+    }
+
+
+    #{{ block_id }} .bp-eyebrow {
+
+      font-size: 13px;
+
+      letter-spacing: 0.03em;
+    }
+
+
+    #{{ block_id }} .bp-title {
+
+      font-size: 42px;
+
+      line-height: 0.98;
+    }
+
+
+    #{{ block_id }} .bp-lower {
+
+      min-height: auto;
+
+      padding:
+        0
+        12px
+        40px;
+    }
+
+
+    #{{ block_id }} .bp-card {
+
       width: 100%;
-      justify-content: space-between;
+
+      margin-top: -30px;
+
+      padding:
+        25px
+        20px;
+
+      gap: 28px;
     }
 
-    .buy-btn {
-      width: 100%;
+
+    #{{ block_id }} .bp-greeting {
+
+      font-size: 25px;
+
+      margin-bottom: 22px;
     }
+
+
+    #{{ block_id }} .bp-select {
+      height: 49px;
+    }
+
+
+    #{{ block_id }} .bp-buy-button {
+      min-height: 52px;
+    }
+
   }
+
+
+  /* ============================================================
+     SMALL MOBILE
+  ============================================================ */
+
+  @media screen and (max-width: 380px) {
+
+    #{{ block_id }} .bp-hero {
+      height: 360px;
+    }
+
+
+    #{{ block_id }} .bp-title {
+      font-size: 36px;
+    }
+
+
+    #{{ block_id }} .bp-card {
+
+      padding:
+        22px
+        16px;
+    }
+
+  }
+
 </style>
 
-<div class="points-bar">
 
-  <div style="display:flex; align-items:center;">
-    <div class="points-title">Buy Points</div>
-    <div class="rate-info">1$ = 1 Point</div>
-  </div>
 
-  <div class="points-group">
+<!-- ============================================================
+     HERO
+============================================================ -->
 
-    <input 
-      type="number" 
-      id="pointsinput"
-      class="points-input"
-      placeholder="Points"
-    />
+<div
+  id="{{ block_id }}"
+  class="bp-wrapper"
+>
 
-    <div class="price-preview">
-      $<span id="price">0</span>
+
+  <div class="bp-hero">
+
+
+    {% if block.settings.hero_image != blank %}
+
+      {{
+        block.settings.hero_image
+        | image_url: width: 2400
+        | image_tag:
+          class: 'bp-hero-image',
+          loading: 'lazy',
+          widths: '600, 900, 1200, 1600, 2000, 2400',
+          sizes: '100vw'
+      }}
+
+
+    {% else %}
+
+      <div class="bp-image-placeholder">
+
+        Select a hero image from the Theme Editor
+
+      </div>
+
+    {% endif %}
+
+
+    <div class="bp-hero-overlay"></div>
+
+
+    <div class="bp-hero-content">
+
+
+      {% if block.settings.eyebrow != blank %}
+
+        <p class="bp-eyebrow">
+
+          {{ block.settings.eyebrow }}
+
+        </p>
+
+      {% endif %}
+
+
+      {% if block.settings.hero_title != blank %}
+
+        <h1 class="bp-title">
+
+          {{ block.settings.hero_title }}
+
+        </h1>
+
+      {% endif %}
+
+
     </div>
 
-    <button id="buyPoints" class="buy-btn">
-      Buy Now
-    </button>
+  </div>
+
+
+
+  <!-- ==========================================================
+       LOWER SECTION
+  =========================================================== -->
+
+  <div class="bp-lower">
+
+
+    <div class="bp-card">
+
+
+      <!-- ======================================================
+           LEFT
+      ======================================================= -->
+
+      <div class="bp-left">
+
+
+        {% if customer %}
+
+
+          <h2 class="bp-greeting">
+
+            Hello
+            <strong>
+              {{ customer.first_name }}
+            </strong>,
+
+            How many points do you want to buy?
+
+          </h2>
+
+
+          <div class="bp-select-wrapper">
+
+
+            <select
+              id="bp-points-{{ block.id }}"
+              class="bp-select"
+            >
+
+              <option value="">
+                Please select
+              </option>
+
+
+              <option value="20">
+                10 - 20
+              </option>
+
+
+              <option value="40">
+                40
+              </option>
+
+
+              <option value="80">
+                40 - 80
+              </option>
+
+
+              <option value="120">
+                80 - 120
+              </option>
+
+
+              <option value="140">
+                140
+              </option>
+
+
+              <option value="160">
+                160
+              </option>
+
+
+              <option value="220">
+                220
+              </option>
+
+
+            </select>
+
+
+            <span class="bp-select-arrow"></span>
+
+          </div>
+
+
+          <p class="bp-balance">
+
+            Current balance:
+
+            <strong>
+
+              {{
+                customer_points
+                | round: 0
+                | number_with_delimiter
+              }}
+
+            </strong>
+
+          </p>
+
+
+        {% else %}
+
+
+          <div class="bp-login">
+
+            Please log in to purchase points.
+
+            <a href="{{ routes.account_login_url }}">
+              Log in
+            </a>
+
+          </div>
+
+
+        {% endif %}
+
+
+      </div>
+
+
+
+      <!-- ======================================================
+           RIGHT
+      ======================================================= -->
+
+      <div class="bp-summary">
+
+
+        <div class="bp-summary-row">
+
+          <span class="bp-summary-label">
+            Points
+          </span>
+
+
+          <span
+            class="bp-summary-value"
+            id="bp-points-value-{{ block.id }}"
+          >
+            -
+          </span>
+
+        </div>
+
+
+
+        <div class="bp-summary-row">
+
+          <span class="bp-summary-label">
+            Subtotal
+          </span>
+
+
+          <span class="bp-summary-value">
+
+            $
+
+            <span id="bp-price-{{ block.id }}">
+              0.00
+            </span>
+
+          </span>
+
+        </div>
+
+
+
+        {% if customer %}
+
+          <button
+            type="button"
+            id="bp-buy-{{ block.id }}"
+            class="bp-buy-button"
+          >
+
+            Buy points
+
+          </button>
+
+        {% endif %}
+
+
+
+        <p class="bp-fee-note">
+
+          Applicable taxes and fees will be calculated at checkout.
+
+        </p>
+
+
+      </div>
+
+
+    </div>
+
 
   </div>
+
+
 </div>
 
-<script>
-window.customerEmail = "{{ customer.email }}";
-</script>
+
+
+<!-- ============================================================
+     JAVASCRIPT
+============================================================ -->
 
 <script>
-document.addEventListener("DOMContentLoaded", () => {
 
-  const API = "https://regina-cycadlike-senatorially.ngrok-free.dev";
-  const input = document.getElementById("pointsinput");
-  const price = document.getElementById("price");
-  const button = document.getElementById("buyPoints");
+  (() => {
 
-  input.addEventListener("input", () => {
-    const points = Number(input.value) || 0;
-    price.textContent = (points * 1).toFixed(2);
-  });
+    const blockId = "{{ block.id }}";
 
-  button.addEventListener("click", async () => {
-    const points = Number(input.value);
 
-    if (!points || points <= 0) {
-      alert("Enter valid points");
+    const select =
+      document.getElementById(
+        "bp-points-" + blockId
+      );
+
+
+    const price =
+      document.getElementById(
+        "bp-price-" + blockId
+      );
+
+
+    const pointsDisplay =
+      document.getElementById(
+        "bp-points-value-" + blockId
+      );
+
+
+    const buyButton =
+      document.getElementById(
+        "bp-buy-" + blockId
+      );
+
+
+    if (!select || !price) {
       return;
     }
 
-    try {
-      const res = await fetch(`${API}/api/loyalty/buy-points`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          email: window.customerEmail,
-          shop: window.Shopify.shop,
-          points
-        })
-      });
 
-      const data = await res.json();
+    const costPerPoint = 1;
 
-      if (data.success && data.checkoutUrl) {
-        window.location.href = data.checkoutUrl;
-      } else {
-        alert(data.error || "Checkout failed");
+
+
+    /* ==========================================================
+       UPDATE PRICE
+    ========================================================== */
+
+    function updatePrice() {
+
+      const points =
+        Number(select.value) || 0;
+
+
+      if (points <= 0) {
+
+        price.textContent = "0.00";
+
+
+        if (pointsDisplay) {
+          pointsDisplay.textContent = "-";
+        }
+
+
+        return;
       }
 
-    } catch (err) {
-      alert("Something went wrong");
-    }
-  });
 
-});
+      const total =
+        points * costPerPoint;
+
+
+      price.textContent =
+        total.toFixed(2);
+
+
+      if (pointsDisplay) {
+
+        const selectedOption =
+          select.options[
+            select.selectedIndex
+          ];
+
+
+        pointsDisplay.textContent =
+          selectedOption.textContent.trim();
+      }
+
+    }
+
+
+
+    select.addEventListener(
+      "change",
+      updatePrice
+    );
+
+
+
+    /* ==========================================================
+       BUY POINTS
+    ========================================================== */
+
+    if (buyButton) {
+
+      buyButton.addEventListener(
+        "click",
+        async function () {
+
+
+          const points =
+            Number(select.value);
+
+
+          if (
+            !points ||
+            points <= 0
+          ) {
+
+            alert(
+              "Please select the number of points you want to buy."
+            );
+
+            return;
+          }
+
+
+          const customerEmail =
+            "{{ customer.email }}";
+
+
+          if (!customerEmail) {
+
+            alert(
+              "Please log in to purchase points."
+            );
+
+            return;
+          }
+
+
+          const originalText =
+            buyButton.textContent;
+
+
+          buyButton.textContent =
+            "Processing...";
+
+
+          buyButton.disabled =
+            true;
+
+
+
+          const API =
+            "https://regina-cycadlike-senatorially.ngrok-free.dev";
+
+
+          try {
+
+            const response =
+              await fetch(
+                API +
+                "/api/loyalty/buy-points",
+                {
+
+                  method: "POST",
+
+                  headers: {
+                    "Content-Type":
+                      "application/json"
+                  },
+
+                  body:
+                    JSON.stringify({
+
+                      email:
+                        customerEmail,
+
+                      shop:
+                        window.Shopify
+                          ? window.Shopify.shop
+                          : "",
+
+                      points:
+                        points
+
+                    })
+
+                }
+              );
+
+
+            const data =
+              await response.json();
+
+
+            if (
+              data.success &&
+              data.checkoutUrl
+            ) {
+
+              window.location.href =
+                data.checkoutUrl;
+
+              return;
+            }
+
+
+            alert(
+              data.error ||
+              "Checkout failed. Please try again."
+            );
+
+
+            buyButton.textContent =
+              originalText;
+
+
+            buyButton.disabled =
+              false;
+
+          }
+
+
+          catch (error) {
+
+            console.error(
+              "Buying points error:",
+              error
+            );
+
+
+            alert(
+              "Something went wrong. Please check your connection."
+            );
+
+
+            buyButton.textContent =
+              originalText;
+
+
+            buyButton.disabled =
+              false;
+          }
+
+        }
+      );
+
+    }
+
+  })();
+
 </script>
 
+
+
 {% schema %}
+
 {
   "name": "Buying Points",
+
   "target": "section",
-  "settings": []
+
+  "settings": [
+
+    {
+      "type": "font_picker",
+      "id": "font",
+      "label": "Font",
+      "default": "helvetica_n4"
+    },
+
+    {
+      "type": "image_picker",
+      "id": "hero_image",
+      "label": "Hero Image"
+    },
+
+    {
+      "type": "text",
+      "id": "eyebrow",
+      "label": "Hero Eyebrow",
+      "default": "REDEEM. REJOICE. REPEAT."
+    },
+
+    {
+      "type": "text",
+      "id": "hero_title",
+      "label": "Hero Title",
+      "default": "BUY POINTS NOW"
+    },
+
+    {
+      "type": "color",
+      "id": "background_color",
+      "label": "Background Color",
+      "default": "#204D61"
+    },
+
+    {
+      "type": "color",
+      "id": "accent_color",
+      "label": "Button Color",
+      "default": "#F0522D"
+    }
+
+  ]
 }
+
 {% endschema %}

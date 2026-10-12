@@ -114,7 +114,7 @@
 // new code for that oddod 
 
 import CustomerPoints from "../models/CustomerPoints.server";
-import { getOdooPoints } from "../lib/odoo.server"; // Make sure this lib file matches your app path!
+import { getOdooPoints } from "../lib/odoo.server";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -140,18 +140,17 @@ export async function loader({ request }) {
     const customerId = url.searchParams.get("customerId");
     const callback = url.searchParams.get("callback");
 
-    console.log("POINTS REQUEST:", {
-      email,
-      customerId,
-    });
+    console.log("POINTS REQUEST:", { email, customerId });
 
     let totalpoints = 0;
+    let history = "";
 
     // 🚀 READ FROM ODOO FIRST
     if (email) {
       const odooData = await getOdooPoints(email);
       if (odooData) {
-        totalpoints = odooData.totalpoints;
+        totalpoints = odooData.totalpoints ?? odooData.availablePoints ?? 0;
+        history = odooData.history || "";
         console.log("FOUND LIVE ODOO POINTS:", totalpoints);
       } else {
         console.log("⚠️ Odoo query failed or returned null. Trying MongoDB fallback...");
@@ -160,10 +159,8 @@ export async function loader({ request }) {
         const customer = await CustomerPoints.findOne({ email });
         totalpoints = customer?.totalpoints ?? 0;
         console.log("FOUND FALLBACK MONGO POINTS:", totalpoints);
-        // -----------------------------
       }
     } else if (customerId) {
-      // If only customerId is provided, fallback to MongoDB since Odoo tracks profiles via Email globally
       const customer = await CustomerPoints.findOne({ customerId: customerId.toString() });
       totalpoints = customer?.totalpoints ?? 0;
       console.log("FOUND MONGO POINTS BY ID:", totalpoints);
@@ -171,7 +168,9 @@ export async function loader({ request }) {
 
     const payload = {
       success: true,
-      totalpoints,
+      points: totalpoints,      // Map to both keys for compatibility
+      totalpoints: totalpoints,
+      history: history,
     };
 
     if (callback) {
@@ -200,7 +199,9 @@ export async function loader({ request }) {
     return new Response(
       JSON.stringify({
         success: false,
+        points: 0,
         totalpoints: 0,
+        history: "",
         error: error.message,
       }),
       {
@@ -220,9 +221,7 @@ export async function action({ request }) {
   }
 
   return new Response(
-    JSON.stringify({
-      error: "Method not allowed",
-    }),
+    JSON.stringify({ error: "Method not allowed" }),
     {
       status: 405,
       headers: corsHeaders,
