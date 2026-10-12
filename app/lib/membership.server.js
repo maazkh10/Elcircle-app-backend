@@ -102,15 +102,15 @@ export async function getCustomerMembership(email) {
   }
 
   const investmentAmount = Number(record.investmentAmount || 0);
-  let tier = normalizeTier(record.tier);
+  const storedTier = normalizeTier(record.tier);
 
-  // Calculate standard tiers using investment if no tier is manually set.
-  // Explicit Infinite tier is honored only when the separate approval flag is true.
-  if (tier === "Infinite" && record.infiniteApproved !== true) {
-    tier = calculateTierFromInvestment(investmentAmount);
-  } else if (!tier) {
-    tier = calculateTierFromInvestment(investmentAmount);
-  }
+  // Standard tiers are derived from investment so a stale selection cannot
+  // accidentally grant higher access. Infinite requires both a stored
+  // Infinite selection and the separate invitation approval flag.
+  const tier =
+    storedTier === "Infinite" && record.infiniteApproved === true
+      ? "Infinite"
+      : calculateTierFromInvestment(investmentAmount);
 
   const benefits = tier ? TIER_CONFIG[tier] : null;
 
