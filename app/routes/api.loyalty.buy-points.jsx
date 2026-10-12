@@ -219,7 +219,7 @@
 // const ODOO_URL = process.env.ODOO_URL || "https://test1106.odoo.com"; 
 // const ODOO_DB = process.env.ODOO_DB || "test1106";                   
 // const ODOO_USERNAME = process.env.ODOO_USERNAME || "itaphrodit@gmail.com";  
-// const ODOO_PASSWORD = process.env.ODOO_API_KEY || "Maazkh@10"; 
+// const ODOO_PASSWORD = process.env.ODOO_API_KEY || "[REMOVED_EXPOSED_CREDENTIAL]"; 
 
 // // ==========================================
 // // 2. HELPER TO HANDLE DIRECT ODOO API CALLS (JSON-RPC)
