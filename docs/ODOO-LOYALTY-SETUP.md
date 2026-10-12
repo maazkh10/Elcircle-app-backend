@@ -26,7 +26,7 @@ Existing loyalty fields expected by current app:
 Create these additional Contact fields in Odoo Studio:
 1. `x_studio_qualifying_spend_aed` — Decimal, default 0. This is the canonical accumulated qualifying spend used for tier calculation.
 2. `x_studio_store_credit_aed` — Decimal, default 0. This mirrors Shopify's store-credit balance; Shopify itself is where the actual credit is issued.
-3. `x_studio_initial_tier_credit_issued` — Checkbox, default unchecked. Reserved for the later controlled legacy-customer migration.
+Optional for the next phase (not required for the paid-order webhook): `x_studio_initial_tier_credit_issued` — Checkbox, default unchecked. Reserved for controlled legacy-customer migration.
 
 Use Decimal fields to avoid the current INR currency field accidentally changing AED amounts. We can fix the Monetary field currency separately.
 
