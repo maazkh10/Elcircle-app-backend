@@ -389,3 +389,77 @@ export async function updateOdooPoints(email, pointsDelta, shopUrl, orderRef, de
     throw error;
   }
 }
+
+/**
+ * 3. READ MEMBERSHIP DATA FOR A CUSTOMER
+ *
+ * Configure custom fields on Odoo res.partner. Override the default technical
+ * field names through environment variables if Odoo Studio generated others:
+ * ODOO_MEMBERSHIP_TIER_FIELD, ODOO_INVESTMENT_AMOUNT_FIELD,
+ * ODOO_INFINITE_APPROVED_FIELD.
+ */
+const MEMBERSHIP_TIER_FIELD =
+  process.env.ODOO_MEMBERSHIP_TIER_FIELD || "x_studio_membership_tier";
+const INVESTMENT_AMOUNT_FIELD =
+  process.env.ODOO_INVESTMENT_AMOUNT_FIELD || "x_studio_investment_amount";
+const INFINITE_APPROVED_FIELD =
+  process.env.ODOO_INFINITE_APPROVED_FIELD || "x_studio_infinite_approved";
+
+export async function getOdooMembership(email) {
+  const normalizedEmail = String(email || "").trim().toLowerCase();
+  if (!normalizedEmail) {
+    throw new Error("Customer email is required to read Odoo membership.");
+  }
+
+  if (!ODOO_URL || !ODOO_DB || !ODOO_USERNAME || !ODOO_PASSWORD) {
+    throw new Error("Odoo environment variables are not fully configured.");
+  }
+
+  const uid = await executeOdooCall("common", "authenticate", [
+    ODOO_DB,
+    ODOO_USERNAME,
+    ODOO_PASSWORD,
+    {},
+  ]);
+  if (!uid) throw new Error("Odoo authentication failed.");
+
+  const partnerIds = await executeOdooCall("object", "execute_kw", [
+    ODOO_DB,
+    uid,
+    ODOO_PASSWORD,
+    PARTNER_MODEL,
+    "search",
+    [[["email", "ilike", normalizedEmail]]],
+    { limit: 1 },
+  ]);
+
+  if (!Array.isArray(partnerIds) || partnerIds.length === 0) return null;
+
+  const fields = [
+    "name",
+    "email",
+    MEMBERSHIP_TIER_FIELD,
+    INVESTMENT_AMOUNT_FIELD,
+    INFINITE_APPROVED_FIELD,
+  ];
+  const rows = await executeOdooCall("object", "execute_kw", [
+    ODOO_DB,
+    uid,
+    ODOO_PASSWORD,
+    PARTNER_MODEL,
+    "read",
+    [[partnerIds[0]], fields],
+  ]);
+
+  const partner = rows?.[0];
+  if (!partner) return null;
+
+  return {
+    partnerId: partner.id,
+    name: partner.name || "",
+    email: partner.email || normalizedEmail,
+    tier: partner[MEMBERSHIP_TIER_FIELD] || null,
+    investmentAmount: Number(partner[INVESTMENT_AMOUNT_FIELD] || 0),
+    infiniteApproved: partner[INFINITE_APPROVED_FIELD] === true,
+  };
+}
