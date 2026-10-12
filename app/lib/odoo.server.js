@@ -399,11 +399,13 @@ export async function updateOdooPoints(email, pointsDelta, shopUrl, orderRef, de
  * ODOO_INFINITE_APPROVED_FIELD.
  */
 const MEMBERSHIP_TIER_FIELD =
-  process.env.ODOO_MEMBERSHIP_TIER_FIELD || "x_studio_membership_tier";
+  process.env.ODOO_MEMBERSHIP_TIER_FIELD || "x_studio_membership_tier_2";
 const INVESTMENT_AMOUNT_FIELD =
-  process.env.ODOO_INVESTMENT_AMOUNT_FIELD || "x_studio_investment_amount";
+  process.env.ODOO_INVESTMENT_AMOUNT_FIELD || "x_studio_investment_amount_aed";
 const INFINITE_APPROVED_FIELD =
-  process.env.ODOO_INFINITE_APPROVED_FIELD || "x_studio_infinite_approved";
+  process.env.ODOO_INFINITE_APPROVED_FIELD || "x_studio_infinite_invitation_approved";
+const QUALIFYING_SPEND_FIELD =
+  process.env.ODOO_QUALIFYING_SPEND_FIELD || "x_studio_qualifying_spend_aed";
 
 export async function getOdooMembership(email) {
   const normalizedEmail = String(email || "").trim().toLowerCase();
@@ -440,6 +442,7 @@ export async function getOdooMembership(email) {
     "email",
     MEMBERSHIP_TIER_FIELD,
     INVESTMENT_AMOUNT_FIELD,
+    QUALIFYING_SPEND_FIELD,
     INFINITE_APPROVED_FIELD,
   ];
   const rows = await executeOdooCall("object", "execute_kw", [
@@ -459,7 +462,7 @@ export async function getOdooMembership(email) {
     name: partner.name || "",
     email: partner.email || normalizedEmail,
     tier: partner[MEMBERSHIP_TIER_FIELD] || null,
-    investmentAmount: Number(partner[INVESTMENT_AMOUNT_FIELD] || 0),
+    investmentAmount: Number(partner[QUALIFYING_SPEND_FIELD] ?? partner[INVESTMENT_AMOUNT_FIELD] ?? 0),
     infiniteApproved: partner[INFINITE_APPROVED_FIELD] === true,
   };
 }
