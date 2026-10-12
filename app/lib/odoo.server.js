@@ -94,7 +94,7 @@ import xmlrpc from 'xmlrpc';
 // const ODOO_URL = process.env.ODOO_URL || "https://test1106.odoo.com"; 
 // const ODOO_DB = process.env.ODOO_DB || "test1106";                   
 // const ODOO_USERNAME = process.env.ODOO_USERNAME || "itaphrodit@gmail.com";  
-// const ODOO_PASSWORD = process.env.ODOO_API_KEY || process.env.ODOO_PASSWORD || "7309b5f63c42071e215cc21c3b7c53de3fb0bf6f";
+// const ODOO_PASSWORD = process.env.ODOO_API_KEY || process.env.ODOO_PASSWORD || "[REMOVED_EXPOSED_CREDENTIAL]";
 // // ==========================================
 // // 2. HELPER TO HANDLE DIRECT ODOO API CALLS
 // // ==========================================
