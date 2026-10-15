@@ -137,7 +137,7 @@ function roundMoney(value) {
 }
 
 function tierForSpend(spend) {
-  return TIER_CONFIG.find((item) => spend >= item.minimumSpend)?.tier || null;
+  return TIER_CONFIG.find((item) => spend >= item.minimumSpend)?.tier || "Pearl";
 }
 
 
@@ -475,6 +475,82 @@ async function fetchShopifyQualifyingSpend({ shop, accessToken, customerId }) {
   } while (after);
 
   return roundMoney(total);
+}
+
+
+/**
+ * Reconcile a signed-in Shopify customer with Odoo on storefront login.
+ * Shopify order history is the source of truth; points-only orders are excluded.
+ */
+export async function syncCustomerQualifyingSpend({ shop, customerId, email }) {
+  const cleanShop = String(shop || "").toLowerCase().replace(/^https?:\/\//, "").replace(/\/$/, "");
+  const normalizedEmail = normalizeEmail(email);
+
+  if (!cleanShop || !/^[a-z0-9][a-z0-9-]*\.myshopify\.com$/.test(cleanShop)) {
+    throw new Error("Invalid Shopify shop domain while syncing membership.");
+  }
+  if (!/^\d+$/.test(String(customerId || ""))) {
+    throw new Error("A valid signed-in Shopify customer ID is required.");
+  }
+  if (!normalizedEmail) throw new Error("A customer email is required to sync membership.");
+
+  const accessToken = await getOfflineToken(cleanShop);
+  const qualifyingSpendTotal = await fetchShopifyQualifyingSpend({
+    shop: cleanShop,
+    accessToken,
+    customerId,
+  });
+
+  const odoo = await connectOdoo();
+  const partnerIds = await odoo.call(
+    PARTNER_MODEL,
+    "search",
+    [[["email", "ilike", normalizedEmail]]],
+    { limit: 1 },
+  );
+
+  let partnerId = partnerIds?.[0];
+  if (!partnerId) {
+    partnerId = await odoo.call(PARTNER_MODEL, "create", [{
+      name: normalizedEmail.split("@")[0],
+      email: normalizedEmail,
+      [FIELD.points]: 0,
+      [FIELD.storeCredit]: 0,
+      [FIELD.qualifyingSpend]: 0,
+      [FIELD.tier]: "Pearl",
+    }]);
+  }
+
+  const rows = await odoo.call(
+    PARTNER_MODEL,
+    "read",
+    [[partnerId], [
+      FIELD.qualifyingSpend,
+      FIELD.tier,
+      FIELD.infiniteApproved,
+      FIELD.manualTierOverride,
+    ]],
+  );
+  const partner = rows?.[0];
+  if (!partner) throw new Error("Could not read Odoo customer during membership sync.");
+
+  const existingTier = String(partner[FIELD.tier] || "").trim();
+  const manualOverride = partner[FIELD.manualTierOverride] === true;
+  const tier = manualOverride
+    ? existingTier || "Pearl"
+    : partner[FIELD.infiniteApproved] === true && existingTier.toLowerCase() === "infinite"
+      ? "Infinite"
+      : tierForSpend(qualifyingSpendTotal);
+
+  const previousSpend = Number(partner[FIELD.qualifyingSpend] || 0);
+  const spendChanged = roundMoney(previousSpend) !== qualifyingSpendTotal;
+  const tierChanged = existingTier !== tier;
+
+  const update = { [FIELD.qualifyingSpend]: qualifyingSpendTotal };
+  if (tier && !manualOverride) update[FIELD.tier] = tier;
+  await odoo.call(PARTNER_MODEL, "write", [[partnerId], update]);
+
+  return { partnerId, qualifyingSpendTotal, qualifyingSpendChanged: spendChanged, tier, tierChanged };
 }
 
 async function grantShopifyStoreCredit({
