@@ -7,6 +7,7 @@
 import { getOdooMembership } from "./odoo.server";
 
 export const MEMBERSHIP_TIERS = Object.freeze({
+  PEARL: "Pearl",
   SILVER: "Silver",
   GOLD: "Gold",
   PLATINUM: "Platinum",
@@ -64,7 +65,7 @@ export function normalizeTier(rawTier) {
 export function getTierRank(tier) {
   const normalized = normalizeTier(tier);
   if (!normalized) return 0;
-  if (normalized === "Infinite") return 7;
+  if (normalized === "Infinite") return 8;
   return TIER_ORDER.indexOf(normalized) + 1;
 }
 
