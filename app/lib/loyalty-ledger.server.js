@@ -515,7 +515,6 @@ export async function syncCustomerQualifyingSpend({ shop, customerId, email }) {
       name: normalizedEmail.split("@")[0],
       email: normalizedEmail,
       [FIELD.points]: 0,
-      [FIELD.storeCredit]: 0,
       [FIELD.qualifyingSpend]: 0,
       [FIELD.tier]: "Pearl",
     }]);
