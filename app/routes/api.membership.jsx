@@ -1,4 +1,5 @@
 import { getCustomerMembership } from "../lib/membership.server";
+import { syncCustomerQualifyingSpend } from "../lib/loyalty-ledger.server";
 import { getAuthenticatedStorefrontCustomer } from "../lib/storefront-customer.server";
 
 function jsonResponse(body, status = 200) {
@@ -21,6 +22,7 @@ function jsonResponse(body, status = 200) {
 export const loader = async ({ request }) => {
   try {
     const storefrontCustomer = await getAuthenticatedStorefrontCustomer(request);
+    await syncCustomerQualifyingSpend(storefrontCustomer);
     const membership = await getCustomerMembership(storefrontCustomer.email);
 
     return jsonResponse({
