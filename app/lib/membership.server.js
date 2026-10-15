@@ -19,6 +19,7 @@ export const MEMBERSHIP_TIERS = Object.freeze({
 // Keep benefit values as metadata only until the business defines whether
 // they represent points, cash, discounts, or purchase allowances.
 export const TIER_CONFIG = Object.freeze({
+  Pearl:    { minimumInvestment: 0,      benefitAmount: 0 },
   Silver:   { minimumInvestment: 5000,   benefitAmount: 150 },
   Gold:     { minimumInvestment: 20000,  benefitAmount: 600 },
   Platinum: { minimumInvestment: 40000,  benefitAmount: 1200 },
@@ -29,6 +30,7 @@ export const TIER_CONFIG = Object.freeze({
 });
 
 const TIER_ORDER = [
+  "Pearl",
   "Silver",
   "Gold",
   "Platinum",
@@ -44,7 +46,7 @@ export function calculateTierFromInvestment(investmentAmount) {
   }
 
   // Infinite is invitation-only and is intentionally never calculated here.
-  let tier = amount >= 5000 ? "Silver" : null;
+  let tier = "Pearl";
   for (const candidate of TIER_ORDER) {
     if (amount >= TIER_CONFIG[candidate].minimumInvestment) tier = candidate;
   }
