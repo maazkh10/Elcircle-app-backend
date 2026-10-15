@@ -544,12 +544,111 @@ export async function syncCustomerQualifyingSpend({ shop, customerId, email }) {
   const previousSpend = Number(partner[FIELD.qualifyingSpend] || 0);
   const spendChanged = roundMoney(previousSpend) !== qualifyingSpendTotal;
   const tierChanged = existingTier !== tier;
+  const creditByTier = {
+    Pearl: 0,
+    Silver: 150,
+    Gold: 600,
+    Platinum: 1200,
+    Diamond: 2400,
+    Emerald: 3000,
+    Ruby: 6000,
+    Infinite: 0,
+  };
+  const initialCredit = Number(creditByTier[tier] || 0);
+  const initialCreditKey = `initial-tier-credit-${String(customerId)}`;
+  const existingCreditRows = await odoo.call(
+    LEDGER.model,
+    "search",
+    [[
+      [LEDGER.orderRef, "=", initialCreditKey],
+      [LEDGER.storeUrl, "=", cleanShop],
+    ]],
+    { limit: 1 },
+  );
 
   const update = { [FIELD.qualifyingSpend]: qualifyingSpendTotal };
   if (tier && !manualOverride) update[FIELD.tier] = tier;
   await odoo.call(PARTNER_MODEL, "write", [[partnerId], update]);
 
-  return { partnerId, qualifyingSpendTotal, qualifyingSpendChanged: spendChanged, tier, tierChanged };
+  let initialCreditGranted = false;
+  let initialCreditAlreadyProcessed = Boolean(existingCreditRows?.length);
+
+  // Credit the member's tier benefit only once per Shopify customer and store.
+  // A pending ledger row prevents a retry from issuing the credit twice.
+  if (initialCredit > 0 && !existingCreditRows?.length) {
+    const ledgerId = await odoo.call(LEDGER.model, "create", [{
+      x_name: `PENDING | Initial Tier Credit | ${initialCreditKey}`,
+      [LEDGER.partner]: partnerId,
+      [LEDGER.pointsDelta]: 0,
+      [LEDGER.orderRef]: initialCreditKey,
+      [LEDGER.storeUrl]: cleanShop,
+      [LEDGER.creditDelta]: initialCredit,
+      [LEDGER.spendDelta]: 0,
+      [LEDGER.transactionType]: "Tier Credit",
+      [LEDGER.status]: "Pending",
+    }]);
+
+    try {
+      const creditTransaction = await grantShopifyStoreCredit({
+        shop: cleanShop,
+        accessToken,
+        customerId,
+        amount: initialCredit,
+      });
+
+      const freshRows = await odoo.call(
+        PARTNER_MODEL,
+        "read",
+        [[partnerId], [FIELD.storeCredit, FIELD.history]],
+      );
+      const freshPartner = freshRows?.[0] || {};
+      const currentCredit = Number(freshPartner[FIELD.storeCredit] || 0);
+      const timestamp = new Date().toISOString();
+      const historyLine = [
+        timestamp,
+        "Initial Tier Credit",
+        `reference=${initialCreditKey}`,
+        `tier=${tier}`,
+        `storeCreditAED=+${initialCredit.toFixed(2)}`,
+        `qualifyingSpendTotalAED=${qualifyingSpendTotal.toFixed(2)}`,
+        `shop=${cleanShop}`,
+      ].join(" | ");
+      const previousHistory = String(freshPartner[FIELD.history] || "");
+
+      await odoo.call(PARTNER_MODEL, "write", [[partnerId], {
+        [FIELD.storeCredit]: roundMoney(currentCredit + initialCredit),
+        [FIELD.history]: previousHistory ? `${historyLine}\\n${previousHistory}` : historyLine,
+      }]);
+      await odoo.call(LEDGER.model, "write", [[ledgerId], {
+        x_name: `COMPLETED | Initial Tier Credit | ${initialCreditKey}`,
+        [LEDGER.status]: "Completed",
+      }]);
+      initialCreditGranted = true;
+    } catch (error) {
+      try {
+        await odoo.call(LEDGER.model, "write", [[ledgerId], {
+          x_name: `NEEDS REVIEW | Initial Tier Credit | ${initialCreditKey}`,
+          [LEDGER.status]: "needs_review",
+        }]);
+      } catch (ledgerError) {
+        console.error("[Loyalty] Could not mark initial tier credit for review:", ledgerError);
+      }
+      throw new Error(
+        `Initial tier credit requires reconciliation for ${initialCreditKey}: ${String(error?.message || error)}`,
+      );
+    }
+  }
+
+  return {
+    partnerId,
+    qualifyingSpendTotal,
+    qualifyingSpendChanged: spendChanged,
+    tier,
+    tierChanged,
+    initialCredit,
+    initialCreditGranted,
+    initialCreditAlreadyProcessed,
+  };
 }
 
 async function grantShopifyStoreCredit({
@@ -698,9 +797,9 @@ export async function processPaidLoyaltyOrder({ order, shop }) {
   //     : 0;
 
   const storeCreditDelta =
-  classification.type === "points_purchase"
-    ? orderAmount
-    : 0;
+    classification.type === "points_purchase"
+      ? roundMoney(orderAmount * 0.03)
+      : 0;
 
 
 
