@@ -7,6 +7,7 @@
 import { getOdooMembership } from "./odoo.server";
 
 export const MEMBERSHIP_TIERS = Object.freeze({
+  PEARL: "Pearl",
   SILVER: "Silver",
   GOLD: "Gold",
   PLATINUM: "Platinum",
@@ -19,6 +20,7 @@ export const MEMBERSHIP_TIERS = Object.freeze({
 // Keep benefit values as metadata only until the business defines whether
 // they represent points, cash, discounts, or purchase allowances.
 export const TIER_CONFIG = Object.freeze({
+  Pearl:    { minimumInvestment: 0,      benefitAmount: 0 },
   Silver:   { minimumInvestment: 5000,   benefitAmount: 150 },
   Gold:     { minimumInvestment: 20000,  benefitAmount: 600 },
   Platinum: { minimumInvestment: 40000,  benefitAmount: 1200 },
@@ -29,6 +31,7 @@ export const TIER_CONFIG = Object.freeze({
 });
 
 const TIER_ORDER = [
+  "Pearl",
   "Silver",
   "Gold",
   "Platinum",
@@ -44,7 +47,7 @@ export function calculateTierFromInvestment(investmentAmount) {
   }
 
   // Infinite is invitation-only and is intentionally never calculated here.
-  let tier = amount >= 5000 ? "Silver" : null;
+  let tier = "Pearl";
   for (const candidate of TIER_ORDER) {
     if (amount >= TIER_CONFIG[candidate].minimumInvestment) tier = candidate;
   }
@@ -62,7 +65,7 @@ export function normalizeTier(rawTier) {
 export function getTierRank(tier) {
   const normalized = normalizeTier(tier);
   if (!normalized) return 0;
-  if (normalized === "Infinite") return 7;
+  if (normalized === "Infinite") return 8;
   return TIER_ORDER.indexOf(normalized) + 1;
 }
 
@@ -102,15 +105,15 @@ export async function getCustomerMembership(email) {
   }
 
   const investmentAmount = Number(record.investmentAmount || 0);
-  let tier = normalizeTier(record.tier);
+  const storedTier = normalizeTier(record.tier);
 
-  // Calculate standard tiers using investment if no tier is manually set.
-  // Explicit Infinite tier is honored only when the separate approval flag is true.
-  if (tier === "Infinite" && record.infiniteApproved !== true) {
-    tier = calculateTierFromInvestment(investmentAmount);
-  } else if (!tier) {
-    tier = calculateTierFromInvestment(investmentAmount);
-  }
+  // Standard tiers are derived from investment so a stale selection cannot
+  // accidentally grant higher access. Infinite requires both a stored
+  // Infinite selection and the separate invitation approval flag.
+  const tier =
+    storedTier === "Infinite" && record.infiniteApproved === true
+      ? "Infinite"
+      : calculateTierFromInvestment(investmentAmount);
 
   const benefits = tier ? TIER_CONFIG[tier] : null;
 
