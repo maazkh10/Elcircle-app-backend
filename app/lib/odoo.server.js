@@ -1,5 +1,3 @@
-import xmlrpc from 'xmlrpc';
-
 // const url = process.env.ODOO_URL;
 // const db = process.env.ODOO_DB;
 // const username = process.env.ODOO_USERNAME;
@@ -42,7 +40,7 @@ import xmlrpc from 'xmlrpc';
 //     };
 //   } catch (err) {
 //     console.error("❌ Odoo Read Error (Falling back to MongoDB):", err);
-//     return null; 
+//     return null;
 //   }
 // }
 
@@ -91,9 +89,9 @@ import xmlrpc from 'xmlrpc';
 // // ==========================================
 // // app/lib/odoo.server.js
 
-// const ODOO_URL = process.env.ODOO_URL || "https://test1106.odoo.com"; 
-// const ODOO_DB = process.env.ODOO_DB || "test1106";                   
-// const ODOO_USERNAME = process.env.ODOO_USERNAME || "itaphrodit@gmail.com";  
+// const ODOO_URL = process.env.ODOO_URL || "https://test1106.odoo.com";
+// const ODOO_DB = process.env.ODOO_DB || "test1106";
+// const ODOO_USERNAME = process.env.ODOO_USERNAME || "itaphrodit@gmail.com";
 // const ODOO_PASSWORD = process.env.ODOO_API_KEY || process.env.ODOO_PASSWORD || "[REMOVED_EXPOSED_CREDENTIAL]";
 // // ==========================================
 // // 2. HELPER TO HANDLE DIRECT ODOO API CALLS
@@ -115,7 +113,7 @@ import xmlrpc from 'xmlrpc';
 
 //   const data = await response.json();
 //   if (data.error) {
-//     throw new Error(`Odoo API Error: ${JSON.stringify(data.error)}`);
+//     throw new Error(`Odoo API Error: ${data.error.code ?? "unknown"}`);
 //   }
 //   return data.result;
 // }
@@ -123,11 +121,11 @@ import xmlrpc from 'xmlrpc';
 // // ==========================================
 // // 3. EXPORTED FUNCTION FOR YOUR WEBHOOKS
 // // ==========================================
-// export async function updateOdooPoints(email, pointsDelta, shopUrl, orderRef, description) {
+// export async function updateOdooPoints(email, pointsDelta, shopUrl, orderRef) {
 
 //     try {
 //         console.log(`[]oddo syn authentications...`)
-// //A authentication code 
+// //A authentication code
 //         const uid = await executeOdooCall("common" , "authenticate" , [
 //             ODOO_DB,
 //             ODOO_USERNAME,
@@ -160,7 +158,7 @@ import xmlrpc from 'xmlrpc';
 //         }
 //         const partnerId = partnerIds[0];
 
-//         // c read the currct  points 
+//         // c read the currct  points
 
 //         console.log(`[oddo syncu] Reafing ur current Total points balance`)
 //         const partnerData = await executeOdooCall("object" , "execute_kw",[
@@ -189,7 +187,7 @@ import xmlrpc from 'xmlrpc';
 //         console.log(`new points updated succefully ${newPointstotal}`)
 
 
-//         // E create the col in odod for the transaction 
+//         // E create the col in odod for the transaction
 
 //         console.log(`[Oddo sync adding  enter of ur points: ${pointsDelta} for ur email partenrs Id ${partnerId}...]`)
 
@@ -197,7 +195,7 @@ import xmlrpc from 'xmlrpc';
 //             ODOO_DB,
 //             uid,
 //             ODOO_PASSWORD,
-//             // this is the that table name 
+//             // this is the that table name
 //             "x_res_partner_line_a24f8",
 //             "create",
 //             [{
@@ -222,9 +220,9 @@ import xmlrpc from 'xmlrpc';
 // app/lib/odoo.server.js
 
 // 1. CONFIGURATION & ENVIRONMENT VARIABLES
-const ODOO_URL = process.env.ODOO_URL; 
-const ODOO_DB = process.env.ODOO_DB;                   
-const ODOO_USERNAME = process.env.ODOO_USERNAME;  
+const ODOO_URL = process.env.ODOO_URL;
+const ODOO_DB = process.env.ODOO_DB;
+const ODOO_USERNAME = process.env.ODOO_USERNAME;
 const ODOO_PASSWORD = process.env.ODOO_API_KEY || process.env.ODOO_PASSWORD;
 
 // Odoo Target Model: Contact Form
@@ -233,9 +231,9 @@ const PARTNER_MODEL = "res.partner";
 // Technical Field Names on res.partner in Odoo Studio
 // const POINTS_FIELD = "x_studio_loyalty_points";
 // Change this line in your code:
-const POINTS_FIELD = "x_studio_loyalty_points_1";
+const POINTS_FIELD = process.env.ODOO_POINTS_FIELD || "x_studio_loyalty_points_1";
 
-const HISTORY_FIELD = "x_studio_loyalty_history_1"; 
+const HISTORY_FIELD = process.env.ODOO_HISTORY_FIELD || "x_studio_loyalty_history_1";
 
 /**
  * HELPER: Direct Odoo JSON-RPC API Call Handler
@@ -261,13 +259,13 @@ async function executeOdooCall(service, method, args) {
   const rawText = await response.text();
 
   if (!response.ok || rawText.trim().startsWith('<')) {
-    console.error(`❌ Odoo Endpoint Error [${response.status}]: Called ${targetUrl}`);
+    console.error(`❌ Odoo Endpoint Error [${response.status}]: Odoo request failed`);
     throw new Error(`Odoo returned non-JSON response. Check ODOO_URL in .env!`);
   }
 
   const data = JSON.parse(rawText);
   if (data.error) {
-    throw new Error(`Odoo API Error: ${JSON.stringify(data.error)}`);
+    throw new Error(`Odoo API Error: ${data.error.code ?? "unknown"}`);
   }
   return data.result;
 }
@@ -288,10 +286,10 @@ export async function getOdooPoints(email) {
       {}
     ]);
 
-    if (!uid) return { totalpoints: 0, availablePoints: 0 };
+    if (!uid) throw new Error("Odoo authentication failed.");
 
     const partnerIds = await executeOdooCall("object", "execute_kw", [
-      ODOO_DB, uid, ODOO_PASSWORD, PARTNER_MODEL, "search", [[["email", "=", email]]]
+      ODOO_DB, uid, ODOO_PASSWORD, PARTNER_MODEL, "search", [[["email", "=ilike", String(email || "").trim()]]], { limit: 1 }
     ]);
 
     if (!partnerIds || partnerIds.length === 0) {
@@ -313,18 +311,17 @@ export async function getOdooPoints(email) {
       history: partnerData[0]?.[HISTORY_FIELD] || ""
     };
   } catch (err) {
-    console.error("❌ Odoo Read Error:", err);
-    return { totalpoints: 0, availablePoints: 0 };
+    console.error("Odoo points read failed"); throw new Error("Odoo points are temporarily unavailable.");
   }
 }
 
 /**
  * 2. UPDATE POINTS & APPEND TRANSACTION HISTORY LOG
  */
-export async function updateOdooPoints(email, pointsDelta, shopUrl, orderRef, description) {
+export async function updateOdooPoints(email, pointsDelta, shopUrl, orderRef) {
   try {
     console.log(`[Odoo Sync] Authenticating for DB: ${ODOO_DB}...`);
-    
+
     // A. Authenticate and get User ID (UID)
     const uid = await executeOdooCall("common", "authenticate", [
       ODOO_DB,
@@ -339,7 +336,7 @@ export async function updateOdooPoints(email, pointsDelta, shopUrl, orderRef, de
 
     // B. Search for customer contact or auto-create if missing
     let partnerIds = await executeOdooCall("object", "execute_kw", [
-      ODOO_DB, uid, ODOO_PASSWORD, PARTNER_MODEL, "search", [[["email", "=", email]]]
+      ODOO_DB, uid, ODOO_PASSWORD, PARTNER_MODEL, "search", [[["email", "=ilike", String(email || "").trim()]]], { limit: 1 }
     ]);
 
     let partnerId;
@@ -360,9 +357,12 @@ export async function updateOdooPoints(email, pointsDelta, shopUrl, orderRef, de
       [[partnerId], [POINTS_FIELD, HISTORY_FIELD]]
     ]);
 
-    const currentPoints = partnerData[0]?.[POINTS_FIELD] || 0;
+    const currentPoints = Number(partnerData[0]?.[POINTS_FIELD] ?? 0);
     const currentHistory = partnerData[0]?.[HISTORY_FIELD] || "";
     const newPointsTotal = currentPoints + pointsDelta;
+    if (!Number.isFinite(newPointsTotal) || newPointsTotal < 0) {
+      throw new Error("Invalid resulting points balance");
+    }
 
     // D. Build the new log line
     const timestamp = new Date().toLocaleString("en-US", { timeZone: "Asia/Kolkata" });
@@ -373,8 +373,8 @@ export async function updateOdooPoints(email, pointsDelta, shopUrl, orderRef, de
     await executeOdooCall("object", "execute_kw", [
       ODOO_DB, uid, ODOO_PASSWORD, PARTNER_MODEL, "write",
       [
-        [partnerId], 
-        { 
+        [partnerId],
+        {
           [POINTS_FIELD]: newPointsTotal,
           [HISTORY_FIELD]: updatedHistory
         }
@@ -388,4 +388,81 @@ export async function updateOdooPoints(email, pointsDelta, shopUrl, orderRef, de
     console.error("❌ Failed to sync points to Odoo:", error);
     throw error;
   }
+}
+
+/**
+ * 3. READ MEMBERSHIP DATA FOR A CUSTOMER
+ *
+ * Configure custom fields on Odoo res.partner. Override the default technical
+ * field names through environment variables if Odoo Studio generated others:
+ * ODOO_MEMBERSHIP_TIER_FIELD, ODOO_INVESTMENT_AMOUNT_FIELD,
+ * ODOO_INFINITE_APPROVED_FIELD.
+ */
+const MEMBERSHIP_TIER_FIELD =
+  process.env.ODOO_MEMBERSHIP_TIER_FIELD || "x_studio_membership_tier_2";
+const INVESTMENT_AMOUNT_FIELD =
+  process.env.ODOO_INVESTMENT_AMOUNT_FIELD || "x_studio_investment_amount_aed";
+const INFINITE_APPROVED_FIELD =
+  process.env.ODOO_INFINITE_APPROVED_FIELD || "x_studio_infinite_invitation_approved";
+const QUALIFYING_SPEND_FIELD =
+  process.env.ODOO_QUALIFYING_SPEND_FIELD || "x_studio_qualifying_spend_aed";
+
+export async function getOdooMembership(email) {
+  const normalizedEmail = String(email || "").trim().toLowerCase();
+  if (!normalizedEmail) {
+    throw new Error("Customer email is required to read Odoo membership.");
+  }
+
+  if (!ODOO_URL || !ODOO_DB || !ODOO_USERNAME || !ODOO_PASSWORD) {
+    throw new Error("Odoo environment variables are not fully configured.");
+  }
+
+  const uid = await executeOdooCall("common", "authenticate", [
+    ODOO_DB,
+    ODOO_USERNAME,
+    ODOO_PASSWORD,
+    {},
+  ]);
+  if (!uid) throw new Error("Odoo authentication failed.");
+
+  const partnerIds = await executeOdooCall("object", "execute_kw", [
+    ODOO_DB,
+    uid,
+    ODOO_PASSWORD,
+    PARTNER_MODEL,
+    "search",
+    [[["email", "=ilike", normalizedEmail]]],
+    { limit: 1 },
+  ]);
+
+  if (!Array.isArray(partnerIds) || partnerIds.length === 0) return null;
+
+  const fields = [
+    "name",
+    "email",
+    MEMBERSHIP_TIER_FIELD,
+    INVESTMENT_AMOUNT_FIELD,
+    QUALIFYING_SPEND_FIELD,
+    INFINITE_APPROVED_FIELD,
+  ];
+  const rows = await executeOdooCall("object", "execute_kw", [
+    ODOO_DB,
+    uid,
+    ODOO_PASSWORD,
+    PARTNER_MODEL,
+    "read",
+    [[partnerIds[0]], fields],
+  ]);
+
+  const partner = rows?.[0];
+  if (!partner) return null;
+
+  return {
+    partnerId: partner.id,
+    name: partner.name || "",
+    email: partner.email || normalizedEmail,
+    tier: partner[MEMBERSHIP_TIER_FIELD] || null,
+    investmentAmount: Number(partner[QUALIFYING_SPEND_FIELD] ?? partner[INVESTMENT_AMOUNT_FIELD] ?? 0),
+    infiniteApproved: partner[INFINITE_APPROVED_FIELD] === true,
+  };
 }

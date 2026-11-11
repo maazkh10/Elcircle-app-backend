@@ -1,0 +1,173 @@
+
+{% liquid
+  assign bespoke_tier = product.metafields.custom.minimum_membership_tier.value | default: '' | downcase | strip
+
+  if bespoke_tier == blank
+    for product_tag in product.tags
+      assign tag_parts = product_tag | split: ':'
+      if tag_parts.size == 2 and tag_parts[0] == 'tier'
+        assign bespoke_tier = tag_parts[1] | downcase | strip
+        break
+      endif
+    endfor
+  endif
+
+  if bespoke_tier == blank
+    for product_collection in product.collections
+      assign collection_tier = product_collection.metafields.custom.minimum_membership_tier.value | default: '' | downcase | strip
+      if collection_tier == 'Platinum' or collection_tier == 'silver'
+        assign bespoke_tier = collection_tier
+        break
+      endif
+    endfor
+  endif
+%}
+
+{% if product and bespoke_tier == 'silver' or product and bespoke_tier == 'Platinum' %}
+  {{ 'bespoke-request.css' | asset_url | stylesheet_tag }}
+  <script src="{{ 'bespoke-request.js' | asset_url }}" defer></script>
+
+  <div
+    class="bespoke-request"
+    data-bespoke-request
+    data-product-title="{{ product.title | escape }}"
+    data-product-tier="{{ bespoke_tier | escape }}"
+  >
+    <div class="bespoke-request__intro">
+      <span class="bespoke-request__eyebrow">A PERSONALIZED EXPERIENCE</span>
+      <h3>Made Just for You</h3>
+      <p>
+        Discover a more personal experience. Send us your bespoke request
+        and our team will be happy to assist you.
+      </p>
+    </div>
+
+    <button
+      type="button"
+      class="bespoke-request__button"
+      data-bespoke-open
+      aria-haspopup="dialog"
+    >
+      <span>Request a Bespoke Piece</span>
+      <span aria-hidden="true">↗</span>
+    </button>
+
+    <div
+      class="bespoke-request__modal"
+      data-bespoke-modal
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="bespokeRequestTitle"
+      aria-hidden="true"
+      hidden
+    >
+      <div class="bespoke-request__backdrop" data-bespoke-close></div>
+
+      <div class="bespoke-request__panel">
+        <button
+          type="button"
+          class="bespoke-request__close"
+          data-bespoke-close
+          aria-label="Close form"
+        >×</button>
+
+        <div data-bespoke-form-view>
+          <span class="bespoke-request__eyebrow">EXCLUSIVE SERVICE</span>
+
+          <h2 id="bespokeRequestTitle">Your Bespoke Request</h2>
+
+          <p class="bespoke-request__description">
+            Tell us a little about what you have in mind.
+            Our team will be delighted to help.
+          </p>
+
+          <form data-bespoke-form>
+            <input
+              type="hidden"
+              name="product"
+              value="{{ product.title | escape }}"
+            >
+
+            <input
+              type="hidden"
+              name="tier"
+              value="{{ bespoke_tier | escape }}"
+            >
+
+            <div class="bespoke-request__field">
+              <label for="bespokeName-{{ block.id }}">Full name</label>
+              <input
+                id="bespokeName-{{ block.id }}"
+                name="name"
+                type="text"
+                placeholder="Your full name"
+                autocomplete="name"
+                required
+              >
+            </div>
+
+            <div class="bespoke-request__field">
+              <label for="bespokeEmail-{{ block.id }}">Email address</label>
+              <input
+                id="bespokeEmail-{{ block.id }}"
+                name="email"
+                type="email"
+                placeholder="you@example.com"
+                autocomplete="email"
+                required
+              >
+            </div>
+
+            <div class="bespoke-request__field">
+              <label for="bespokeMessage-{{ block.id }}">Your message</label>
+              <textarea
+                id="bespokeMessage-{{ block.id }}"
+                name="message"
+                rows="5"
+                placeholder="Describe your request..."
+                required
+              ></textarea>
+            </div>
+
+            <button type="submit" class="bespoke-request__submit">
+              Submit Request <span aria-hidden="true">→</span>
+            </button>
+
+            <p class="bespoke-request__note">
+              Bespoke service for our {{ bespoke_tier | capitalize }} collection.
+            </p>
+          </form>
+        </div>
+
+        <div class="bespoke-request__success" data-bespoke-success hidden>
+          <div class="bespoke-request__success-icon" aria-hidden="true">✓</div>
+
+          <span class="bespoke-request__eyebrow">THANK YOU</span>
+
+          <h2>Your Request Has Been Received</h2>
+
+          <p>
+            Thank you for sharing your bespoke request.
+            Our team will get back to you within 24 hours.
+          </p>
+
+          <button
+            type="button"
+            class="bespoke-request__submit"
+            data-bespoke-close
+          >
+            Continue Shopping
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endif %}
+
+{% schema %}
+{
+  "name": "Bespoke Request",
+  "target": "section",
+  "settings": []
+}
+{% endschema %}

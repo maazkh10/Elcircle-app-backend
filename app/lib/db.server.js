@@ -1,11 +1,17 @@
 import mongoose from "mongoose";
 
-const MONGODB_URI = process.env.Mongo_URI;
-
-if (!mongoose.connection.readyState) {
-
-  await  mongoose.connect(MONGODB_URI);
-
+let connectionPromise;
+export async function connectMongo() {
+  if (mongoose.connection.readyState === 1) return mongoose;
+  if (!process.env.Mongo_URI) throw new Error("Mongo_URI is required for legacy MongoDB webhooks.");
+  if (!connectionPromise) {
+    connectionPromise = mongoose.connect(process.env.Mongo_URI).catch(error => {
+      connectionPromise = undefined;
+      throw error;
+    });
+  }
+  await connectionPromise;
+  return mongoose;
 }
 
 export default mongoose;

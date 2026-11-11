@@ -1,4 +1,4 @@
-// old code this one 
+// old code this one
 // import CustomerPoints from "../models/CustomerPoints.server";
 
 // export const loader = async () => {
@@ -162,7 +162,9 @@
 
 
 import CustomerPoints from "../models/CustomerPoints.server";
-import { updateOdooPoints } from "../lib/odoo.server"; 
+import { updateOdooPoints } from "../lib/odoo.server";
+import { connectMongo } from "../lib/db.server";
+import { authenticate } from "../shopify.server";
 
 export const loader = async () => {
   return new Response("Webhook active", { status: 200 });
@@ -172,8 +174,7 @@ export const action = async ({ request }) => {
   try {
     console.log("WEBHOOK HIT");
 
-    const shop = request.headers.get("x-shopify-shop-domain"); // e.g., "chizelle.myshopify.com"
-    const order = await request.json();
+    const { shop, payload: order } = await authenticate.webhook(request);
     const email = order.customer?.email?.toLowerCase().trim();
     const orderRef = order.name || `#${order.id}`; // e.g., "#1002"
 
@@ -184,6 +185,7 @@ export const action = async ({ request }) => {
     /* ===============================
        FIND CUSTOMER (GLOBAL EMAIL)
     =============================== */
+    await connectMongo();
     let customer = await CustomerPoints.findOne({ email });
 
     if (!customer) {
@@ -244,10 +246,10 @@ export const action = async ({ request }) => {
 
         // 🚀 SYNC DESTRUCTION TO ODOO (Passing negative value, Shop, and Code)
         await updateOdooPoints(
-          email, 
-          -pointsToDeduct, 
-          shop, 
-          orderRef, 
+          email,
+          -pointsToDeduct,
+          shop,
+          orderRef,
           `Redeemed discount code: ${appliedCodeString}`
         );
 
@@ -270,6 +272,7 @@ export const action = async ({ request }) => {
     return new Response("Points earned", { status: 200 });
 
   } catch (error) {
+    if (error instanceof Response) return error;
     console.error("Webhook Error:", error);
     return new Response("Error", { status: 200 });
   }

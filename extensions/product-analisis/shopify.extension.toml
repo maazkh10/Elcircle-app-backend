@@ -1,0 +1,11 @@
+api_version = "2026-10"
+
+[[extensions]]
+name = "product-analisis"
+handle = "product-analisis"
+uid = "b517561d-ffbe-c87e-f2e5-3d4d1d10cd8ea6a5543e"
+type = "ui_extension"
+
+[[extensions.targeting]]
+module = "./src/BlockExtension.jsx"
+target = "admin.product-details.block.render"

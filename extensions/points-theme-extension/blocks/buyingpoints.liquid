@@ -1,66 +1,32 @@
-{% comment %}
-  ============================================================================
-  BUYING POINTS - SHOPIFY APP BLOCK
-  ============================================================================
 
-  File:
-    blocks/buyingpoints.liquid
-
-  This is an APP BLOCK, therefore:
-    - use block.settings
-    - target must be "section"
-    - maximum 6 settings
-{% endcomment %}
 
 
 {%- liquid
   assign block_id = 'buying-points-' | append: block.id
-  assign customer_points = customer.metafields.loyalty.points | default: 0
+  assign customer_points = customer.metafields.loyalty.points.value | default: 0
 -%}
 
-
 <style>
-
-  /* ============================================================
-     SELECTED SHOPIFY FONT
-  ============================================================ */
-
   {{ block.settings.font | font_face }}
 
-
-  /* ============================================================
-     ROOT
-  ============================================================ */
-
   #{{ block_id }} {
-
     --bp-bg: {{ block.settings.background_color }};
     --bp-accent: {{ block.settings.accent_color }};
-
     --bp-card: #ffffff;
     --bp-text: #171717;
     --bp-muted: #666666;
     --bp-border: #dedede;
-
     --bp-button-hover: #dc4525;
 
     width: 100%;
     position: relative;
     overflow: hidden;
-
-    font-family:
-      {{ block.settings.font.family }},
+    font-family: {{ block.settings.font.family }},
       {{ block.settings.font.fallback_families }};
-
-    font-style:
-      {{ block.settings.font.style }};
-
-    font-weight:
-      {{ block.settings.font.weight }};
-
+    font-style: {{ block.settings.font.style }};
+    font-weight: {{ block.settings.font.weight }};
     box-sizing: border-box;
   }
-
 
   #{{ block_id }} *,
   #{{ block_id }} *::before,
@@ -68,735 +34,413 @@
     box-sizing: border-box;
   }
 
-
-  /* ============================================================
-     HERO
-  ============================================================ */
+  /* HERO */
 
   #{{ block_id }} .bp-hero {
-
     position: relative;
-
     width: 100%;
     height: 560px;
-
     overflow: hidden;
-
     background: #b9c1c3;
   }
 
-
-  /* ============================================================
-     HERO IMAGE
-  ============================================================ */
-
   #{{ block_id }} .bp-hero-image {
-
     position: absolute;
-
     inset: 0;
-
     width: 100%;
     height: 100%;
-
     display: block;
-
     object-fit: cover;
-
     object-position: center center;
   }
 
-
-  /* ============================================================
-     IMAGE OVERLAY
-  ============================================================ */
-
   #{{ block_id }} .bp-hero-overlay {
-
     position: absolute;
-
     inset: 0;
-
-    background:
-      linear-gradient(
-        90deg,
-        rgba(0, 0, 0, 0.24) 0%,
-        rgba(0, 0, 0, 0.08) 55%,
-        rgba(0, 0, 0, 0.02) 100%
-      );
-
+    background: linear-gradient(
+      90deg,
+      rgba(0, 0, 0, 0.24) 0%,
+      rgba(0, 0, 0, 0.08) 55%,
+      rgba(0, 0, 0, 0.02) 100%
+    );
     z-index: 1;
-
     pointer-events: none;
   }
 
-
-  /* ============================================================
-     IMAGE PLACEHOLDER
-  ============================================================ */
-
   #{{ block_id }} .bp-image-placeholder {
-
     position: absolute;
-
     inset: 0;
-
     display: flex;
-
     align-items: center;
-
     justify-content: center;
-
-    background:
-      linear-gradient(
-        135deg,
-        #cbd3d5,
-        #9daeb1
-      );
-
+    background: linear-gradient(135deg, #cbd3d5, #9daeb1);
     color: #ffffff;
-
     font-size: 13px;
-
     letter-spacing: 0.08em;
-
     text-transform: uppercase;
-
     text-align: center;
   }
 
-
-  /* ============================================================
-     HERO CONTENT
-  ============================================================ */
-
   #{{ block_id }} .bp-hero-content {
-
     position: relative;
-
     z-index: 2;
-
     width: calc(100% - 90px);
-
     max-width: 1500px;
-
     height: 100%;
-
     margin: 0 auto;
-
     padding-top: 62px;
   }
 
-
-  /* ============================================================
-     EYEBROW
-  ============================================================ */
-
   #{{ block_id }} .bp-eyebrow {
-
     margin: 0 0 9px;
-
     color: #ffffff;
-
     font-size: 19px;
-
     line-height: 1.2;
-
     font-weight: 400;
-
     letter-spacing: 0.02em;
-
     text-transform: uppercase;
-
-    text-shadow:
-      0 1px 5px rgba(0, 0, 0, 0.2);
+    text-shadow: 0 1px 5px rgba(0, 0, 0, 0.2);
   }
-
-
-  /* ============================================================
-     HERO TITLE
-  ============================================================ */
 
   #{{ block_id }} .bp-title {
-
     margin: 0;
-
     max-width: 850px;
-
     color: #ffffff;
-
     font-size: 64px;
-
     line-height: 0.98;
-
     font-weight: 400;
-
     letter-spacing: -0.025em;
-
     text-transform: uppercase;
-
-    text-shadow:
-      0 2px 10px rgba(0, 0, 0, 0.18);
+    text-shadow: 0 2px 10px rgba(0, 0, 0, 0.18);
   }
 
-
-  /* ============================================================
-     LOWER BLUE AREA
-  ============================================================ */
+  /* LOWER SECTION */
 
   #{{ block_id }} .bp-lower {
-
     position: relative;
-
     background: var(--bp-bg);
-
     min-height: 360px;
-
-    padding:
-      70px
-      20px
-      55px;
+    padding: 70px 20px 55px;
   }
 
-
-  /* ============================================================
-     PURCHASE CARD
-  ============================================================ */
+  /* PURCHASE CARD */
 
   #{{ block_id }} .bp-card {
-
     position: relative;
-
     z-index: 5;
-
-    width: min(
-      100%,
-      920px
-    );
-
-    margin:
-      -23px
-      auto
-      0;
-
+    width: min(100%, 920px);
+    margin: -23px auto 0;
     background: var(--bp-card);
-
     border: 1px solid #e1e1e1;
-
     border-radius: 0;
-
-    box-shadow:
-      0 18px 50px rgba(0, 0, 0, 0.15);
-
+    box-shadow: 0 18px 50px rgba(0, 0, 0, 0.15);
     padding: 36px;
-
     display: grid;
-
-    grid-template-columns:
-      minmax(0, 1.1fr)
-      minmax(270px, 0.65fr);
-
+    grid-template-columns: minmax(0, 1.1fr) minmax(270px, 0.65fr);
     gap: 45px;
   }
-
-
-  /* ============================================================
-     LEFT CONTENT
-  ============================================================ */
 
   #{{ block_id }} .bp-left {
     min-width: 0;
   }
 
-
   #{{ block_id }} .bp-greeting {
-
-    margin: 0 0 28px;
-
+    margin: 0 0 20px;
     color: var(--bp-text);
-
     font-size: 28px;
-
-    line-height: 1.12;
-
+    line-height: 1.2;
     font-weight: 400;
-
     letter-spacing: -0.02em;
   }
-
 
   #{{ block_id }} .bp-greeting strong {
     font-weight: 500;
   }
 
-
-  /* ============================================================
-     SELECT
-  ============================================================ */
-
-  #{{ block_id }} .bp-select-wrapper {
-
-    position: relative;
-
-    width: 100%;
-  }
-
-
-  #{{ block_id }} .bp-select {
-
-    appearance: none;
-    -webkit-appearance: none;
-
-    width: 100%;
-
-    height: 50px;
-
-    padding:
-      0
-      50px
-      0
-      15px;
-
-    background: #ffffff;
-
-    border: 1px solid #b9b9b9;
-
-    border-radius: 4px;
-
-    color: #222222;
-
-    font-family: inherit;
-
-    font-size: 15px;
-
-    font-weight: 400;
-
-    cursor: pointer;
-
-    transition:
-      border-color 0.2s ease,
-      box-shadow 0.2s ease;
-  }
-
-
-  #{{ block_id }} .bp-select:hover {
-    border-color: #888888;
-  }
-
-
-  #{{ block_id }} .bp-select:focus {
-
-    outline: none;
-
-    border-color: var(--bp-accent);
-
-    box-shadow:
-      0 0 0 3px
-      rgba(239, 82, 45, 0.12);
-  }
-
-
-  #{{ block_id }} .bp-select-arrow {
-
-    position: absolute;
-
-    right: 18px;
-
-    top: 50%;
-
-    width: 9px;
-
-    height: 9px;
-
-    border-right:
-      2px solid #333333;
-
-    border-bottom:
-      2px solid #333333;
-
-    transform:
-      translateY(-70%)
-      rotate(45deg);
-
-    pointer-events: none;
-  }
-
-
-  /* ============================================================
-     BALANCE
-  ============================================================ */
-
-  #{{ block_id }} .bp-balance {
-
-    margin: 18px 0 0;
-
+  #{{ block_id }} .bp-description {
+    margin: 0 0 25px;
     color: var(--bp-muted);
-
     font-size: 14px;
-
-    line-height: 1.4;
+    line-height: 1.6;
   }
 
+  /* AMOUNT INPUT */
 
-  #{{ block_id }} .bp-balance strong {
-
-    color: var(--bp-text);
-
+  #{{ block_id }} .bp-input-label {
+    display: block;
+    margin-bottom: 10px;
+    color: #333333;
+    font-size: 14px;
     font-weight: 500;
   }
 
+  #{{ block_id }} .bp-input-wrapper {
+    position: relative;
+    width: 100%;
+  }
 
-  /* ============================================================
-     RIGHT SUMMARY
-  ============================================================ */
+  #{{ block_id }} .bp-currency {
+    position: absolute;
+    top: 50%;
+    left: 16px;
+    transform: translateY(-50%);
+    color: #333333;
+    font-size: 16px;
+    pointer-events: none;
+  }
+
+  #{{ block_id }} .bp-amount-input {
+    width: 100%;
+    height: 55px;
+    padding: 0 16px 0 65px;
+    background: #ffffff;
+    border: 1px solid #b9b9b9;
+    border-radius: 4px;
+    color: #222222;
+    font-family: inherit;
+    font-size: 17px;
+    outline: none;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  }
+
+  #{{ block_id }} .bp-amount-input:focus {
+    border-color: var(--bp-accent);
+    box-shadow: 0 0 0 3px rgba(239, 82, 45, 0.12);
+  }
+
+  #{{ block_id }} .bp-amount-input::placeholder {
+    color: #aaaaaa;
+  }
+
+  #{{ block_id }} .bp-min-note {
+    margin: 9px 0 0;
+    color: #777777;
+    font-size: 12px;
+    line-height: 1.5;
+  }
+
+  /* BALANCE */
+
+  #{{ block_id }} .bp-balance {
+    margin: 22px 0 0;
+    color: var(--bp-muted);
+    font-size: 14px;
+    line-height: 1.5;
+  }
+
+  #{{ block_id }} .bp-balance strong {
+    color: var(--bp-text);
+    font-weight: 600;
+  }
+
+  /* SUMMARY */
 
   #{{ block_id }} .bp-summary {
-
     min-width: 0;
-
     padding-left: 28px;
-
-    border-left:
-      1px solid #eeeeee;
-
+    border-left: 1px solid #eeeeee;
     display: flex;
-
     flex-direction: column;
-
     justify-content: center;
   }
 
-
   #{{ block_id }} .bp-summary-row {
-
     display: flex;
-
     align-items: center;
-
     justify-content: space-between;
-
     gap: 20px;
-
     padding-bottom: 13px;
-
     margin-bottom: 13px;
-
-    border-bottom:
-      1px solid #e7e7e7;
-
+    border-bottom: 1px solid #e7e7e7;
     color: #333333;
-
     font-size: 14px;
-
     line-height: 1.4;
   }
-
 
   #{{ block_id }} .bp-summary-label {
     color: #555555;
   }
 
-
   #{{ block_id }} .bp-summary-value {
-
     color: #222222;
-
     font-weight: 500;
-
     text-align: right;
-
     white-space: nowrap;
   }
 
-
-  /* ============================================================
-     BUY BUTTON
-  ============================================================ */
+  /* BUTTON */
 
   #{{ block_id }} .bp-buy-button {
-
     width: 100%;
-
     min-height: 50px;
-
     margin-top: 5px;
-
     padding: 0 24px;
-
     border: none;
-
     border-radius: 0;
-
     background: var(--bp-accent);
-
     color: #ffffff;
-
     font-family: inherit;
-
     font-size: 15px;
-
     font-weight: 600;
-
     cursor: pointer;
-
     display: flex;
-
     align-items: center;
-
     justify-content: center;
-
-    transition:
-      background 0.2s ease,
-      transform 0.2s ease,
-      opacity 0.2s ease;
+    transition: background 0.2s ease, transform 0.2s ease, opacity 0.2s ease;
   }
-
 
   #{{ block_id }} .bp-buy-button:hover {
-
     background: var(--bp-button-hover);
-
-    transform:
-      translateY(-1px);
+    transform: translateY(-1px);
   }
-
-
-  #{{ block_id }} .bp-buy-button:active {
-
-    transform:
-      translateY(0);
-  }
-
 
   #{{ block_id }} .bp-buy-button:disabled {
-
     opacity: 0.55;
-
     cursor: not-allowed;
-
     transform: none;
   }
 
-
-  /* ============================================================
-     FEE NOTE
-  ============================================================ */
-
   #{{ block_id }} .bp-fee-note {
-
     margin: 12px 0 0;
-
     color: #777777;
-
     font-size: 11px;
-
-    line-height: 1.45;
-  }
-
-
-  /* ============================================================
-     LOGIN
-  ============================================================ */
-
-  #{{ block_id }} .bp-login {
-
-    padding: 18px;
-
-    background: #f7f7f7;
-
-    color: #555555;
-
-    font-size: 14px;
-
     line-height: 1.5;
   }
 
+  #{{ block_id }} .bp-message {
+    display: none;
+    margin-top: 14px;
+    padding: 12px;
+    border-radius: 4px;
+    font-size: 13px;
+    line-height: 1.5;
+  }
+
+  #{{ block_id }} .bp-message.bp-error {
+    display: block;
+    background: #fff0ee;
+    color: #b42318;
+  }
+
+  #{{ block_id }} .bp-message.bp-info {
+    display: block;
+    background: #eef6ff;
+    color: #174a75;
+  }
+
+  /* LOGIN */
+
+  #{{ block_id }} .bp-login {
+    padding: 18px;
+    background: #f7f7f7;
+    color: #555555;
+    font-size: 14px;
+    line-height: 1.5;
+  }
 
   #{{ block_id }} .bp-login a {
-
     color: #222222;
-
     font-weight: 600;
-
     text-decoration: underline;
   }
 
-
-  /* ============================================================
-     TABLET
-  ============================================================ */
+  /* TABLET */
 
   @media screen and (max-width: 900px) {
-
     #{{ block_id }} .bp-hero {
       height: 500px;
     }
 
-
     #{{ block_id }} .bp-hero-content {
-
       width: calc(100% - 50px);
-
       padding-top: 55px;
     }
-
 
     #{{ block_id }} .bp-title {
       font-size: 56px;
     }
 
-
     #{{ block_id }} .bp-card {
-
       width: calc(100% - 20px);
-
       grid-template-columns: 1fr;
-
       gap: 28px;
-
       padding: 30px;
     }
 
-
     #{{ block_id }} .bp-summary {
-
       border-left: none;
-
-      border-top:
-        1px solid #eeeeee;
-
+      border-top: 1px solid #eeeeee;
       padding-left: 0;
-
       padding-top: 28px;
     }
-
   }
 
-
-  /* ============================================================
-     MOBILE
-  ============================================================ */
+  /* MOBILE */
 
   @media screen and (max-width: 600px) {
-
     #{{ block_id }} .bp-hero {
       height: 400px;
     }
 
-
     #{{ block_id }} .bp-hero-content {
-
       width: calc(100% - 40px);
-
       padding-top: 42px;
     }
 
-
     #{{ block_id }} .bp-eyebrow {
-
       font-size: 13px;
-
-      letter-spacing: 0.03em;
     }
-
 
     #{{ block_id }} .bp-title {
-
       font-size: 42px;
-
-      line-height: 0.98;
     }
-
 
     #{{ block_id }} .bp-lower {
-
       min-height: auto;
-
-      padding:
-        0
-        12px
-        40px;
+      padding: 0 12px 40px;
     }
 
-
     #{{ block_id }} .bp-card {
-
       width: 100%;
-
       margin-top: -30px;
-
-      padding:
-        25px
-        20px;
-
+      padding: 25px 20px;
       gap: 28px;
     }
 
-
     #{{ block_id }} .bp-greeting {
-
       font-size: 25px;
-
-      margin-bottom: 22px;
+      margin-bottom: 20px;
     }
-
-
-    #{{ block_id }} .bp-select {
-      height: 49px;
-    }
-
 
     #{{ block_id }} .bp-buy-button {
       min-height: 52px;
     }
-
   }
 
-
-  /* ============================================================
-     SMALL MOBILE
-  ============================================================ */
-
   @media screen and (max-width: 380px) {
-
     #{{ block_id }} .bp-hero {
       height: 360px;
     }
-
 
     #{{ block_id }} .bp-title {
       font-size: 36px;
     }
 
-
     #{{ block_id }} .bp-card {
-
-      padding:
-        22px
-        16px;
+      padding: 22px 16px;
     }
-
   }
-
 </style>
 
+<div id="{{ block_id }}" class="bp-wrapper"
+  data-customer-email="{{ customer.email | escape }}"
+  data-shop="{{ shop.permanent_domain | escape }}">
 
-
-<!-- ============================================================
-     HERO
-============================================================ -->
-
-<div
-  id="{{ block_id }}"
-  class="bp-wrapper"
->
 
 
   <div class="bp-hero">
 
-
     {% if block.settings.hero_image != blank %}
-
       {{
         block.settings.hero_image
         | image_url: width: 2400
@@ -806,569 +450,386 @@
           widths: '600, 900, 1200, 1600, 2000, 2400',
           sizes: '100vw'
       }}
-
-
     {% else %}
-
       <div class="bp-image-placeholder">
-
-        Select a hero image from the Theme Editor
-
+        Select a hero image fgbhbgrhbghrbghgbrom the nnbibhbhbTheme Editor maaz khannnsne
       </div>
-
     {% endif %}
-
 
     <div class="bp-hero-overlay"></div>
 
-
     <div class="bp-hero-content">
 
-
       {% if block.settings.eyebrow != blank %}
-
         <p class="bp-eyebrow">
-
           {{ block.settings.eyebrow }}
-
         </p>
-
       {% endif %}
-
 
       {% if block.settings.hero_title != blank %}
-
         <h1 class="bp-title">
-
           {{ block.settings.hero_title }}
-
         </h1>
-
       {% endif %}
 
-
     </div>
-
   </div>
 
 
 
-  <!-- ==========================================================
-       LOWER SECTION
-  =========================================================== -->
-
   <div class="bp-lower">
-
 
     <div class="bp-card">
 
 
-      <!-- ======================================================
-           LEFT
-      ======================================================= -->
 
       <div class="bp-left">
 
-
         {% if customer %}
 
-
           <h2 class="bp-greeting">
-
-            Hello
-            <strong>
-              {{ customer.first_name }}
-            </strong>,
-
-            How many points do you want to buy?
-
+            Hello <strong>{{ customer.first_name | escape }}</strong>,
+            how much would you like to add?
           </h2>
 
+          <p class="bp-description">
+            Enter your preferred amount in AED.
+            Every AED 1 added gives you 1 loyalty point.
+          </p>
 
-          <div class="bp-select-wrapper">
+          <label
+            class="bp-input-label"
+            for="bp-amount-{{ block.id }}">
+            Enter amount
+          </label>
 
+          <div class="bp-input-wrapper">
 
-            <select
-              id="bp-points-{{ block.id }}"
-              class="bp-select"
+            <span class="bp-currency">AED</span>
+
+            <input
+              type="number"
+              id="bp-amount-{{ block.id }}"
+              class="bp-amount-input"
+              placeholder="Enter amount"
+              min="1"
+              max="100000"
+              step="1"
+              inputmode="numeric"
+              autocomplete="off"
             >
-
-              <option value="">
-                Please select
-              </option>
-
-
-              <option value="20">
-                10 - 20
-              </option>
-
-
-              <option value="40">
-                40
-              </option>
-
-
-              <option value="80">
-                40 - 80
-              </option>
-
-
-              <option value="120">
-                80 - 120
-              </option>
-
-
-              <option value="140">
-                140
-              </option>
-
-
-              <option value="160">
-                160
-              </option>
-
-
-              <option value="220">
-                220
-              </option>
-
-
-            </select>
-
-
-            <span class="bp-select-arrow"></span>
 
           </div>
 
-
-          <p class="bp-balance">
-
-            Current balance:
-
-            <strong>
-
-              {{
-                customer_points
-                | round: 0
-                | number_with_delimiter
-              }}
-
-            </strong>
-
+          <p class="bp-min-note">
+            Minimum AED 1. Maximum AED 100,000.
           </p>
 
+          <p class="bp-balance">
+            Current points balance:
+            <strong>
+              {{ customer_points | round: 0 }}
+            </strong>
+            points
+          </p>
 
         {% else %}
 
-
           <div class="bp-login">
-
-            Please log in to purchase points.
+            Please log in to add loyalty points.
 
             <a href="{{ routes.account_login_url }}">
               Log in
             </a>
-
           </div>
 
-
         {% endif %}
-
 
       </div>
 
 
 
-      <!-- ======================================================
-           RIGHT
-      ======================================================= -->
-
       <div class="bp-summary">
-
 
         <div class="bp-summary-row">
 
           <span class="bp-summary-label">
-            Points
+            Amount
           </span>
 
+          <span class="bp-summary-value">
+            AED <span id="bp-price-{{ block.id }}">0.00</span>
+          </span>
+
+        </div>
+
+        <div class="bp-summary-row">
+
+          <span class="bp-summary-label">
+            Points to receive
+          </span>
 
           <span
             class="bp-summary-value"
-            id="bp-points-value-{{ block.id }}"
-          >
-            -
+            id="bp-points-value-{{ block.id }}">
+            0
           </span>
 
         </div>
-
-
-
-        <div class="bp-summary-row">
-
-          <span class="bp-summary-label">
-            Subtotal
-          </span>
-
-
-          <span class="bp-summary-value">
-
-            $
-
-            <span id="bp-price-{{ block.id }}">
-              0.00
-            </span>
-
-          </span>
-
-        </div>
-
-
 
         {% if customer %}
 
           <button
             type="button"
             id="bp-buy-{{ block.id }}"
-            class="bp-buy-button"
-          >
-
-            Buy points
-
+            class="bp-buy-button">
+            Add Money
           </button>
 
         {% endif %}
 
-
+        <div
+          id="bp-message-{{ block.id }}"
+          class="bp-message"
+          role="alert"
+          aria-live="polite">
+        </div>
 
         <p class="bp-fee-note">
-
-          Applicable taxes and fees will be calculated at checkout.
-
+          Applicable payment processing fees and taxes, if any,
+          will be displayed by the payment provider before payment.
+          Points are credited only after payment verification.
         </p>
-
 
       </div>
 
-
     </div>
-
 
   </div>
 
-
 </div>
 
-
-
-<!-- ============================================================
-     JAVASCRIPT
-============================================================ -->
-
 <script>
+(() => {
+  const blockId = {{ block.id | json }};
 
-  (() => {
+  const root = document.getElementById(
+    "buying-points-" + blockId
+  );
 
-    const blockId = "{{ block.id }}";
+  if (!root || root.dataset.initialized === "true") {
+    return;
+  }
 
+  root.dataset.initialized = "true";
 
-    const select =
-      document.getElementById(
-        "bp-points-" + blockId
-      );
+  const amountInput = root.querySelector(
+    "#bp-amount-" + blockId
+  );
 
+  const priceDisplay = root.querySelector(
+    "#bp-price-" + blockId
+  );
 
-    const price =
-      document.getElementById(
-        "bp-price-" + blockId
-      );
+  const pointsDisplay = root.querySelector(
+    "#bp-points-value-" + blockId
+  );
 
+  const buyButton = root.querySelector(
+    "#bp-buy-" + blockId
+  );
 
-    const pointsDisplay =
-      document.getElementById(
-        "bp-points-value-" + blockId
-      );
+  const message = root.querySelector(
+    "#bp-message-" + blockId
+  );
 
+  if (!amountInput || !priceDisplay || !pointsDisplay || !buyButton) {
+    return;
+  }
 
-    const buyButton =
-      document.getElementById(
-        "bp-buy-" + blockId
-      );
+  const customerEmail = root.dataset.customerEmail;
+  const shop = root.dataset.shop;
 
+  const MIN_AMOUNT = 1;
+  const MAX_AMOUNT = 100000;
 
-    if (!select || !price) {
+  // IMPORTANT:
+  // Replace this with your currently active public backend URL.
+  // Do not use an expired ngrok or Cloudflare tunnel URL.
+  const API_BASE =
+    "/apps/elcircle-membership";
+
+  const formatAmount = (value) => {
+    return Number(value).toLocaleString("en-AE", {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2
+    });
+  };
+
+  function showMessage(text, type = "error") {
+    message.textContent = text;
+    message.className = "bp-message bp-" + type;
+  }
+
+  function clearMessage() {
+    message.textContent = "";
+    message.className = "bp-message";
+  }
+
+  function updateAmount() {
+    const amount = Number(amountInput.value);
+
+    if (
+      !Number.isFinite(amount) ||
+      amount < MIN_AMOUNT ||
+      amount > MAX_AMOUNT
+    ) {
+      priceDisplay.textContent = "0.00";
+      pointsDisplay.textContent = "0";
       return;
     }
 
+    // AED 1 = 1 point
+    const points = amount;
 
-    const costPerPoint = 1;
+    priceDisplay.textContent = formatAmount(amount);
+    pointsDisplay.textContent = Math.floor(points).toLocaleString("en-AE");
+  }
 
+  amountInput.addEventListener("input", () => {
+    clearMessage();
+    updateAmount();
+  });
 
+  buyButton.addEventListener("click", async () => {
+    const amountAED = Number(amountInput.value);
 
-    /* ==========================================================
-       UPDATE PRICE
-    ========================================================== */
-
-    function updatePrice() {
-
-      const points =
-        Number(select.value) || 0;
-
-
-      if (points <= 0) {
-
-        price.textContent = "0.00";
-
-
-        if (pointsDisplay) {
-          pointsDisplay.textContent = "-";
-        }
-
-
-        return;
-      }
-
-
-      const total =
-        points * costPerPoint;
-
-
-      price.textContent =
-        total.toFixed(2);
-
-
-      if (pointsDisplay) {
-
-        const selectedOption =
-          select.options[
-            select.selectedIndex
-          ];
-
-
-        pointsDisplay.textContent =
-          selectedOption.textContent.trim();
-      }
-
+    if (
+      !Number.isFinite(amountAED) ||
+      !Number.isInteger(amountAED) ||
+      amountAED < MIN_AMOUNT ||
+      amountAED > MAX_AMOUNT
+    ) {
+      showMessage(
+        "Please enter a whole amount between AED 1 and AED 100,000."
+      );
+      amountInput.focus();
+      return;
     }
 
+    if (!customerEmail || !shop) {
+      showMessage("Please log in to continue.");
+      return;
+    }
 
+    const originalText = buyButton.textContent;
 
-    select.addEventListener(
-      "change",
-      updatePrice
-    );
+    buyButton.disabled = true;
+    buyButton.textContent = "Preparing payment...";
+    clearMessage();
 
-
-
-    /* ==========================================================
-       BUY POINTS
-    ========================================================== */
-
-    if (buyButton) {
-
-      buyButton.addEventListener(
-        "click",
-        async function () {
-
-
-          const points =
-            Number(select.value);
-
-
-          if (
-            !points ||
-            points <= 0
-          ) {
-
-            alert(
-              "Please select the number of points you want to buy."
-            );
-
-            return;
-          }
-
-
-          const customerEmail =
-            "{{ customer.email }}";
-
-
-          if (!customerEmail) {
-
-            alert(
-              "Please log in to purchase points."
-            );
-
-            return;
-          }
-
-
-          const originalText =
-            buyButton.textContent;
-
-
-          buyButton.textContent =
-            "Processing...";
-
-
-          buyButton.disabled =
-            true;
-
-
-
-          const API =
-            "https://regina-cycadlike-senatorially.ngrok-free.dev";
-
-
-          try {
-
-            const response =
-              await fetch(
-                API +
-                "/api/loyalty/buy-points",
-                {
-
-                  method: "POST",
-
-                  headers: {
-                    "Content-Type":
-                      "application/json"
-                  },
-
-                  body:
-                    JSON.stringify({
-
-                      email:
-                        customerEmail,
-
-                      shop:
-                        window.Shopify
-                          ? window.Shopify.shop
-                          : "",
-
-                      points:
-                        points
-
-                    })
-
-                }
-              );
-
-
-            const data =
-              await response.json();
-
-
-            if (
-              data.success &&
-              data.checkoutUrl
-            ) {
-
-              window.location.href =
-                data.checkoutUrl;
-
-              return;
-            }
-
-
-            alert(
-              data.error ||
-              "Checkout failed. Please try again."
-            );
-
-
-            buyButton.textContent =
-              originalText;
-
-
-            buyButton.disabled =
-              false;
-
-          }
-
-
-          catch (error) {
-
-            console.error(
-              "Buying points error:",
-              error
-            );
-
-
-            alert(
-              "Something went wrong. Please check your connection."
-            );
-
-
-            buyButton.textContent =
-              originalText;
-
-
-            buyButton.disabled =
-              false;
-          }
-
+    try {
+      const response = await fetch(
+        API_BASE + "/loyalty/buy-points",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            email: customerEmail,
+            shop: shop,
+            amountAED: amountAED,
+            currency: "AED"
+          })
         }
       );
 
+      const data = await response.json();
+
+      if (!response.ok || !data.success) {
+        throw new Error(
+          data.error || "Unable to create payment. Please try again."
+        );
+      }
+
+      if (
+        !data.checkoutUrl ||
+        typeof data.checkoutUrl !== "string"
+      ) {
+        throw new Error(
+          "Payment link was not returned by the server."
+        );
+      }
+
+      // Payment URL must be generated by the trusted backend.
+      const checkoutUrl = new URL(data.checkoutUrl);
+
+      if (checkoutUrl.protocol !== "https:") {
+        throw new Error("Invalid payment URL.");
+      }
+
+      // Redirect customer to payment provider.
+      window.location.assign(checkoutUrl.href);
+
+    } catch (error) {
+      console.error("Buying points error:", error);
+
+      showMessage(
+        error.message ||
+        "Something went wrong. Please try again."
+      );
+
+      buyButton.disabled = false;
+      buyButton.textContent = originalText;
     }
+  });
 
-  })();
+  updateAmount();
 
+})();
 </script>
 
-
-
 {% schema %}
-
 {
   "name": "Buying Points",
-
   "target": "section",
-
   "settings": [
-
     {
       "type": "font_picker",
       "id": "font",
       "label": "Font",
       "default": "helvetica_n4"
     },
-
     {
       "type": "image_picker",
       "id": "hero_image",
       "label": "Hero Image"
     },
-
     {
       "type": "text",
       "id": "eyebrow",
       "label": "Hero Eyebrow",
       "default": "REDEEM. REJOICE. REPEAT."
     },
-
     {
       "type": "text",
       "id": "hero_title",
       "label": "Hero Title",
-      "default": "BUY POINTS NOW"
+      "default": "ADD LOYALTY POINTS"
     },
-
     {
       "type": "color",
       "id": "background_color",
       "label": "Background Color",
       "default": "#204D61"
     },
-
     {
       "type": "color",
       "id": "accent_color",
       "label": "Button Color",
       "default": "#F0522D"
     }
-
   ]
 }
-
 {% endschema %}

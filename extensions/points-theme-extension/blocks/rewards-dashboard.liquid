@@ -1,0 +1,187 @@
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&display=swap" rel="stylesheet">
+
+<div class="lux-minimal-wrapper">
+
+  <div class="lux-container">
+
+
+    <div class="lux-top-nav">
+      <div class="lux-nav-left">
+        <a href="javascript:history.back()" class="lux-back-btn">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+          <span>Back</span>
+        </a>
+      </div>
+      <div class="lux-nav-center">
+        <img src="https://cdn.shopify.com/s/files/1/0649/2838/3074/files/ElCircle88_logos-14.png?v=1782384398"
+        alt="Brand Logo" class="lux-brand-logo">
+      </div>
+      <div class="lux-nav-right"></div>
+    </div>
+
+
+    <header class="lux-header">
+
+      <div class="lux-header-left">
+        <span class="lux-label">PRIVATE MEMBER</span>
+        <h1 class="lux-name">
+          {{ customer.first_name }} {{ customer.last_name }}
+        </h1>
+        <p class="lux-subline">
+          Infinite Circle ecosystem access verified.
+        </p>
+      </div>
+
+      <div class="lux-tier-box">
+        <span class="lux-label">CURRENT TIER</span>
+        <div class="lux-tier-row">
+          <img
+            src="https://cdn.shopify.com/s/files/1/0649/2838/3074/files/gold-removebg-preview.png?v=1781766593"
+            alt="Gold Tier"
+            class="lux-tier-icon"
+          >
+          <h2 class="lux-tier">
+            {{ block.settings.tier_name }}
+          </h2>
+        </div>
+        <a href="https://elcircle-static-frontend.vercel.app/" class="lux-button">
+          ENTER PORTAL
+        </a>
+      </div>
+
+    </header>
+
+
+    <div class="lux-grid">
+
+
+      <section class="lux-card lux-card-credits">
+        <div>
+          <span class="lux-card-label">MEMBER CREDITS</span>
+          <div class="lux-credit-number">
+            <span id="customer-points">--</span>
+            <span class="lux-credit-unit">Points</span>
+          </div>
+        </div>
+        <p class="lux-text">
+          Available for concierge deployments, invitation-only
+          acquisitions, and private ecosystem releases.
+        </p>
+      </section>
+
+
+      <section class="lux-card lux-card-progress">
+
+        <div class="lux-progress-top">
+          <div>
+            <span class="lux-card-label">ASCENSION STATUS</span>
+            <h3 class="lux-progress-title">Progress</h3>
+          </div>
+          <div class="lux-progress-number">
+            {{ block.settings.progress }}%
+          </div>
+        </div>
+
+
+        <div class="lux-progress-track">
+          <div
+            class="lux-progress-fill"
+            style="width: {{ block.settings.progress }}%"
+          ></div>
+        </div>
+
+
+        <div class="lux-benefits">
+          <div class="lux-benefit">
+            <h4>PRIVATE CONCIERGE</h4>
+            <p>Dedicated luxury support and sourcing access.</p>
+          </div>
+          <div class="lux-benefit">
+            <h4>EARLY ACCESS</h4>
+            <p>Priority previews and hidden collection releases.</p>
+          </div>
+        </div>
+
+      </section>
+
+    </div>
+
+  </div>
+
+</div>
+
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+  const pointsEl = document.getElementById("customer-points");
+  const email = "{{ customer.email }}";
+
+  if (!email) {
+    if (pointsEl) pointsEl.textContent = "0";
+    return;
+  }
+
+  const endpoint = `/apps/elcircle-membership/loyalty/points?email=${encodeURIComponent(email)}`;
+
+  fetch(endpoint, {
+    method: "GET",
+    headers: {
+      "ngrok-skip-browser-warning": "true",
+      "Accept": "application/json"
+    }
+  })
+  .then(response => response.json())
+  .then(data => {
+    console.log("Loyalty Points Received:", data);
+    const points = data.totalpoints ?? data.points ?? 0;
+    if (pointsEl) {
+      pointsEl.textContent = Number(points).toLocaleString();
+    }
+  })
+  .catch(err => {
+    console.error("Points fetch error:", err);
+    // Fallback attempt via JSONP script injection if fetch is blocked
+    const script = document.createElement("script");
+    window.pointsCallback = function(data) {
+      if (pointsEl) pointsEl.textContent = (data.totalpoints || 0).toLocaleString();
+    };
+    script.src = endpoint + "&callback=pointsCallback";
+    document.body.appendChild(script);
+  });
+});
+</script>
+
+{% schema %}
+{
+  "name": "Luxury Minimal Dashboard",
+  "target": "section",
+  "settings": [
+    {
+      "type": "text",
+      "id": "tier_name",
+      "label": "Tier Name",
+      "default": "INFINITE GOLD"
+    },
+    {
+      "type": "text",
+      "id": "credits",
+      "label": "Credits",
+      "default": "1,888,888"
+    },
+    {
+      "type": "range",
+      "id": "progress",
+      "label": "Progress",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "default": 82
+    }
+  ]
+}
+{% endschema %}
+
+{{ 'rewards-dashboard-migrated-0.css' | asset_url | stylesheet_tag }}

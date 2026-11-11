@@ -36,17 +36,17 @@ if (host === "localhost") {
 }
 
 export default defineConfig({
+  resolve: { dedupe: ["react", "react-dom", "react-router"] },
   server: {
-     allowedHosts: [
-    host,                               // Shopify app host
-    "regina-cycadlike-senatorially.ngrok-free.dev"  // ✅ ngrok tunnel
-  ],
+    host: "127.0.0.1",
+    allowedHosts: [host],
 
     cors: {
       preflightContinue: true,
     },
     port: Number(process.env.PORT || 3000),
-    hmr: hmrConfig,
+    strictPort: true,
+    hmr: process.env.ELCIRCLE_REGULAR_STORE === "1" ? false : hmrConfig,
     fs: {
       // See https://vitejs.dev/config/server-options.html#server-fs-allow for more information
       allow: ["app", "node_modules"],
@@ -57,6 +57,6 @@ export default defineConfig({
     assetsInlineLimit: 0,
   },
   optimizeDeps: {
-    include: ["@shopify/app-bridge-react"],
+    include: ["react", "react-dom", "react-router", "@shopify/app-bridge-react", "@shopify/shopify-app-react-router/react"],
   },
 });

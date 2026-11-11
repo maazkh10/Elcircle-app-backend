@@ -1,6 +1,6 @@
 # Learn more about configuring your app at https://shopify.dev/docs/apps/tools/cli/configuration
 
-client_id = "84852d13a0aaab26593e8f1da171e21d"
+client_id = "4bc5e970349bdfbb9bc3426bab2bde07"
 name = "loyalty-points-app-test"
 application_url = "https://example.com"
 embedded = true
@@ -11,8 +11,20 @@ automatically_update_urls_on_dev = true
 [webhooks]
 api_version = "2026-04"
 
+
+[[webhooks.subscriptions]]
+topics = ["orders/paid"]
+uri = "/api/webhooks/orders-paid"
+
+
 [access_scopes]
-# Learn more at https://shopify.dev/docs/apps/tools/cli/configuration#access_scopes
-scopes = "write_discounts,write_products,write_draft_orders"
+scopes = "write_discounts,write_products,write_draft_orders,read_customers,read_orders,read_store_credit_accounts,write_store_credit_account_transactions,write_app_proxy"
+
+
+[app_proxy]
+url = "/api/membership"
+prefix = "apps"
+subpath = "elcircle-membership"
+
 [auth]
 redirect_urls = [ "https://example.com/api/auth" ]

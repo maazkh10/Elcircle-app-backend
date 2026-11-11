@@ -1,0 +1,12 @@
+{
+  "compilerOptions": {
+    "jsx": "react-jsx",
+    "target": "ES2022",
+    "module": "NodeNext",            // <--- Add this line
+    "moduleResolution": "NodeNext",  // <--- Pairs perfectly with this
+    "esModuleInterop": true,
+    "noEmit": true,
+    "skipLibCheck": true,
+    "strict": true
+  }
+}

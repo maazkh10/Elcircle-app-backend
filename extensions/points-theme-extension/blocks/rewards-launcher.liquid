@@ -1,0 +1,46 @@
+
+
+{{ 'rewards-launcher-migrated-0.css' | asset_url | stylesheet_tag }}
+
+{% if request.page_type == 'index' %}
+  <div id="care-rewards-root"></div>
+
+  <script>
+    window.CareRewardsConfig = {
+      customerEmail: {{ customer.email | default: "" | json }},
+      customerFirstName: {{ customer.first_name | default: "" | json }},
+      customerLastName: {{ customer.last_name | default: "" | json }},
+
+      appointmentVariantId:
+        {% if block.settings.appointment_product != blank %}
+          {{ block.settings.appointment_product.selected_or_first_available_variant.id | json }}
+        {% else %}
+          null
+        {% endif %},
+
+      appointmentProductTitle:
+        {% if block.settings.appointment_product != blank %}
+          {{ block.settings.appointment_product.title | json }}
+        {% else %}
+          "Private In-Store Appointment"
+        {% endif %}
+    };
+  </script>
+
+  <script src="{{ 'care-rewards.js' | asset_url }}" defer></script>
+{% endif %}
+
+{% schema %}
+{
+  "name": "Care Rewards Widget",
+  "target": "body",
+  "settings": [
+    {
+      "type": "product",
+      "id": "appointment_product",
+      "label": "Paid appointment product",
+      "info": "Choose the Shopify product that customers pay for when booking a private in-store appointment."
+    }
+  ]
+}
+{% endschema %}

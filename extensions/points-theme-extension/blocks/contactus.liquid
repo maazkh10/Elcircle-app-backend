@@ -1,0 +1,445 @@
+<div class="atelier-asymmetric-hub" id="AtelierBooking-{{ section.id }}">
+
+  <div class="canvas-visual-pane">
+    <div class="canvas-hairline-accent"></div>
+    <div class="canvas-image-frame">
+      {%- if section.settings.hero_image != blank -%}
+        <img
+          src="{{ section.settings.hero_image | image_url: width: 1000 }}"
+          loading="lazy"
+          alt="Boutique Lookbook Exhibition" />
+      {%- else -%}
+        <img src="https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?q=80&w=1000" alt="Boutique Lookbook Default Exhibition" />
+      {%- endif -%}
+    </div>
+  </div>
+
+  <div class="ledger-interactive-pane">
+    <div class="editorial-header-matrix">
+      <span class="ledger-context-caps">
+        {{ section.settings.sub_caps_title | default: "Private Salon" }}
+      </span>
+      <h2 class="ledger-serif-title">
+        {{ section.settings.main_title_line1 | default: "Private Fittings" }}
+        <span>{{ section.settings.main_title_line2 | default: "Reserve Your Collection Viewing" }}</span>
+      </h2>
+    </div>
+
+    {%- form 'contact', id: 'luxuryLedgerForm', class: 'ledger-form-blueprint' -%}
+      {%- if form.posted_successfully? -%}
+        <div class="form-status form-status-success">
+          {{ 'templates.contact.form.post_success' | t | default: "Your boutique reservation request has been registered gracefully." }}
+        </div>
+      {%- elsif form.errors -%}
+        <div class="form-status form-status-error">
+          {{ form.errors | default_errors }}
+        </div>
+      {%- endif -%}
+
+      <div class="ledger-input-wrapper">
+        <label class="ledger-label-ui" for="ContactForm-name-{{ section.id }}">
+          {{ section.settings.name_label | default: "Identity" }}
+        </label>
+        <input
+          type="text"
+          name="contact[name]"
+          id="ContactForm-name-{{ section.id }}"
+          class="ledger-input-ui"
+          value="{% if form.name %}{{ form.name }}{% elsif customer %}{{ customer.name }}{% endif %}"
+          required
+          placeholder="{{ section.settings.name_placeholder | default: "Your full name" }}" />
+      </div>
+
+      <div class="ledger-input-wrapper">
+        <label class="ledger-label-ui" for="ContactForm-email-{{ section.id }}">
+          {{ section.settings.email_label | default: "Digital Mail" }}
+        </label>
+        <input
+          type="email"
+          name="contact[email]"
+          id="ContactForm-email-{{ section.id }}"
+          class="ledger-input-ui"
+          value="{% if form.email %}{{ form.email }}{% elsif customer %}{{ customer.email }}{% endif %}"
+          spellcheck="false"
+          autocapitalize="off"
+          required
+          placeholder="name@domain.com" />
+      </div>
+
+      <div class="ledger-input-wrapper ledger-chevron-frame">
+        <label class="ledger-label-ui" for="ContactForm-curation-{{ section.id }}">
+          {{ section.settings.dropdown_label | default: "Dropdown" }}
+        </label>
+        <select class="ledger-select-ui" id="ContactForm-curation-{{ section.id }}" name="contact[collection_focus]" required>
+          <option value="" disabled selected>{{ section.settings.dropdown_placeholder | default: "Select Private Line Focus..." }}</option>
+          <option value="gold">Maison d'Élégance (Gold Line)</option>
+          <option value="platinum">Atelier Vaucanson (Platinum Line)</option>
+          <option value="diamond">Elara Vance (Diamond Selection)</option>
+        </select>
+      </div>
+
+      <div class="ledger-input-wrapper">
+        <label class="ledger-label-ui" for="ContactForm-date-{{ section.id }}">
+          {{ section.settings.date_label | default: "Date Picker" }}
+        </label>
+        <input type="date" class="ledger-input-ui" name="contact[preferred_date]" required id="ContactForm-date-{{ section.id }}" />
+      </div>
+
+      <div class="ledger-input-wrapper field-span-entirety">
+        <label class="ledger-label-ui" for="ContactForm-notes-{{ section.id }}">
+          {{ section.settings.notes_label | default: "Atelier Notes (Optional)" }}
+        </label>
+        <input
+          type="text"
+          class="ledger-input-ui"
+          name="contact[atelier_notes]"
+          placeholder="{{ section.settings.notes_placeholder | default: "Specify references or sizing requirements" }}"
+          id="ContactForm-notes-{{ section.id }}" />
+      </div>
+
+      <div class="field-span-entirety ledger-concierge-divider-block">
+        <hr class="ledger-thin-line" />
+        <p class="ledger-guideline-text">
+          * Please note: Fitting requests are subject to availability. A confirmation invitation details card will be delivered to your registered digital mail within 24 hours.
+        </p>
+      </div>
+
+      <div class="ledger-action-trigger-block">
+        <button type="submit" class="btn-luxury-submit-blueprint">
+          {{ section.settings.submit_button_text | default: "Submit Appointment" }}
+        </button>
+      </div>
+
+    {%- endform -%}
+  </div>
+
+</div>
+
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=Montserrat:wght@200;300;400&display=swap');
+
+  #AtelierBooking-{{ section.id }} {
+    display: grid !important;
+    grid-template-columns: 0.95fr 1.05fr !important;
+    gap: 90px !important;
+    align-items: center !important;
+    width: 100% !important;
+    max-width: 1380px !important;
+    margin: {{ section.settings.margin_top | default: 60 }}px auto {{ section.settings.margin_bottom | default: 60 }}px auto !important;
+    padding: 0 50px !important;
+    box-sizing: border-box !important;
+    background-color: #ffffff !important;
+    font-family: 'Montserrat', sans-serif !important;
+  }
+
+  #AtelierBooking-{{ section.id }} .canvas-visual-pane {
+    position: relative !important;
+    width: 100% !important;
+    display: flex !important;
+    justify-content: flex-start !important;
+  }
+
+  #AtelierBooking-{{ section.id }} .canvas-hairline-accent {
+    position: absolute !important;
+    width: 82% !important;
+    aspect-ratio: 3 / 4 !important;
+    border: 1px solid #000000 !important;
+    top: 25px !important;
+    left: -20px !important;
+    z-index: 1 !important;
+  }
+
+  #AtelierBooking-{{ section.id }} .canvas-image-frame {
+    position: relative !important;
+    width: 82% !important;
+    aspect-ratio: 3 / 4 !important;
+    overflow: hidden !important;
+    z-index: 2 !important;
+    background-color: #fcfcfc !important;
+  }
+
+  #AtelierBooking-{{ section.id }} .canvas-image-frame img {
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: cover !important;
+    filter: grayscale(100%) !important;
+    transition: transform 1.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
+  }
+
+  #AtelierBooking-{{ section.id }} .canvas-visual-pane:hover .canvas-image-frame img {
+    transform: scale(1.04) !important;
+  }
+
+  #AtelierBooking-{{ section.id }} .ledger-interactive-pane {
+    display: flex !important;
+    flex-direction: column !important;
+    padding-left: 20px !important;
+  }
+
+  #AtelierBooking-{{ section.id }} .editorial-header-matrix {
+    margin-bottom: 45px !important;
+    border-bottom: 1px solid #f0f0f0 !important;
+    padding-bottom: 25px !important;
+  }
+
+  #AtelierBooking-{{ section.id }} .ledger-context-caps {
+    font-size: 10px !important;
+    font-weight: 400 !important;
+    text-transform: uppercase !important;
+    letter-spacing: 8px !important;
+    color: #999999 !important;
+    margin-bottom: 12px !important;
+    display: block !important;
+    line-height: 1 !important;
+  }
+
+  #AtelierBooking-{{ section.id }} .ledger-serif-title {
+    font-family: 'Cormorant Garamond', serif !important;
+    font-size: 54px !important;
+    font-weight: 300 !important;
+    line-height: 1.1 !important;
+    letter-spacing: -1px !important;
+    color: #000000 !important;
+    text-transform: uppercase !important;
+    margin: 0 !important;
+  }
+
+  #AtelierBooking-{{ section.id }} .ledger-serif-title span {
+    display: block !important;
+    font-family: 'Cormorant Garamond', serif !important;
+    font-style: italic !important;
+    font-size: 32px !important;
+    color: #555555 !important;
+    text-transform: none !important;
+    letter-spacing: 0px !important;
+    margin-top: 8px !important;
+  }
+
+  #AtelierBooking-{{ section.id }} .ledger-form-blueprint {
+    display: grid !important;
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 35px 30px !important;
+    width: 100% !important;
+  }
+
+  #AtelierBooking-{{ section.id }} .ledger-input-wrapper {
+    display: flex !important;
+    flex-direction: column !important;
+    position: relative !important;
+  }
+
+  #AtelierBooking-{{ section.id }} .field-span-entirety {
+    grid-column: span 2 !important;
+  }
+
+  #AtelierBooking-{{ section.id }} .ledger-label-ui {
+    font-size: 9px !important;
+    text-transform: uppercase !important;
+    letter-spacing: 3px !important;
+    color: #222222 !important;
+    margin-bottom: 8px !important;
+    font-weight: 400 !important;
+    display: block !important;
+  }
+
+  #AtelierBooking-{{ section.id }} .ledger-input-ui,
+  #AtelierBooking-{{ section.id }} .ledger-select-ui {
+    font-family: 'Montserrat', sans-serif !important;
+    font-size: 13px !important;
+    font-weight: 300 !important;
+    letter-spacing: 1px !important;
+    color: #000000 !important;
+    background: transparent !important;
+    border: none !important;
+    border-bottom: 1px solid #cccccc !important;
+    padding: 10px 0 !important;
+    outline: none !important;
+    width: 100% !important;
+    border-radius: 0 !important;
+    box-sizing: border-box !important;
+    transition: border-color 0.3s ease !important;
+  }
+
+  #AtelierBooking-{{ section.id }} .ledger-input-ui:focus,
+  #AtelierBooking-{{ section.id }} .ledger-select-ui:focus {
+    border-bottom: 1px solid #000000 !important;
+  }
+
+  #AtelierBooking-{{ section.id }} .ledger-chevron-frame::after {
+    content: '↓' !important;
+    font-size: 10px !important;
+    position: absolute !important;
+    right: 5px !important;
+    bottom: 12px !important;
+    color: #888888 !important;
+    pointer-events: none !important;
+  }
+
+  #AtelierBooking-{{ section.id }} .ledger-thin-line {
+    border: none !important;
+    border-top: 1px solid #e5e5e5 !important;
+    margin-bottom: 12px !important;
+  }
+
+  #AtelierBooking-{{ section.id }} .ledger-guideline-text {
+    font-size: 11px !important;
+    line-height: 1.6 !important;
+    color: #777777 !important;
+    font-weight: 300 !important;
+    font-style: italic !important;
+  }
+
+  #AtelierBooking-{{ section.id }} .ledger-action-trigger-block {
+    grid-column: span 2 !important;
+  }
+
+  #AtelierBooking-{{ section.id }} .btn-luxury-submit-blueprint {
+    font-family: 'Montserrat', sans-serif !important;
+    font-size: 11px !important;
+    text-transform: uppercase !important;
+    letter-spacing: 5px !important;
+    font-weight: 400 !important;
+    color: #ffffff !important;
+    background-color: #000000 !important;
+    border: 1px solid #000000 !important;
+    padding: 22px 0 !important;
+    width: 100% !important;
+    max-width: 280px !important;
+    cursor: pointer !important;
+    transition: all 0.4s ease !important;
+  }
+
+  #AtelierBooking-{{ section.id }} .btn-luxury-submit-blueprint:hover {
+    background-color: #ffffff !important;
+    color: #000000 !important;
+  }
+
+  @media (max-width: 990px) {
+    #AtelierBooking-{{ section.id }} { grid-template-columns: 1fr !important; gap: 60px !important; padding: 0 30px !important; }
+    #AtelierBooking-{{ section.id }} .canvas-visual-pane { justify-content: center !important; }
+    #AtelierBooking-{{ section.id }} .ledger-interactive-pane { padding-left: 0 !important; }
+    #AtelierBooking-{{ section.id }} .canvas-image-frame,
+    #AtelierBooking-{{ section.id }} .canvas-hairline-accent { width: 65% !important; }
+    #AtelierBooking-{{ section.id }} .canvas-hairline-accent { left: calc(17.5% - 20px) !important; }
+  }
+
+  @media (max-width: 768px) {
+    #AtelierBooking-{{ section.id }} { padding: 0 20px !important; }
+    #AtelierBooking-{{ section.id }} .ledger-serif-title { font-size: 42px !important; }
+    #AtelierBooking-{{ section.id }} .ledger-serif-title span { font-size: 26px !important; }
+    #AtelierBooking-{{ section.id }} .ledger-form-blueprint { grid-template-columns: 1fr !important; gap: 35px !important; }
+    #AtelierBooking-{{ section.id }} .field-span-entirety,
+    #AtelierBooking-{{ section.id }} .ledger-action-trigger-block { grid-column: span 1 !important; }
+    #AtelierBooking-{{ section.id }} .btn-luxury-submit-blueprint { max-width: 100% !important; }
+  }
+</style>
+
+{% schema %}
+{
+  "name": "Luxury Atelier Booking",
+  "target": "section",
+  "settings": [
+    {
+      "type": "text",
+      "id": "sub_caps_title",
+      "label": "Small Overline Label",
+      "default": "Private Salon"
+    },
+    {
+      "type": "text",
+      "id": "main_title_line1",
+      "label": "Heading Line 1",
+      "default": "Private Fittings"
+    },
+    {
+      "type": "text",
+      "id": "main_title_line2",
+      "label": "Heading Line 2 (Italicized)",
+      "default": "Reserve Your Collection Viewing"
+    },
+    {
+      "type": "header",
+      "content": "Form Labels"
+    },
+    {
+      "type": "text",
+      "id": "name_label",
+      "label": "Name Label",
+      "default": "Identity"
+    },
+    {
+      "type": "text",
+      "id": "name_placeholder",
+      "label": "Name Placeholder",
+      "default": "Your full name"
+    },
+    {
+      "type": "text",
+      "id": "email_label",
+      "label": "Email Label",
+      "default": "Digital Mail"
+    },
+    {
+      "type": "text",
+      "id": "dropdown_label",
+      "label": "Dropdown Label",
+      "default": "Dropdown"
+    },
+    {
+      "type": "text",
+      "id": "dropdown_placeholder",
+      "label": "Dropdown Placeholder",
+      "default": "Select Private Line Focus..."
+    },
+    {
+      "type": "text",
+      "id": "date_label",
+      "label": "Date Label",
+      "default": "Date Picker"
+    },
+    {
+      "type": "text",
+      "id": "notes_label",
+      "label": "Notes Label",
+      "default": "Atelier Notes (Optional)"
+    },
+    {
+      "type": "text",
+      "id": "notes_placeholder",
+      "label": "Notes Placeholder",
+      "default": "Specify references or sizing requirements"
+    },
+    {
+      "type": "text",
+      "id": "submit_button_text",
+      "label": "Button Text",
+      "default": "Submit Appointment"
+    },
+    {
+      "type": "image_picker",
+      "id": "hero_image",
+      "label": "Boutique Display Image"
+    },
+    {
+      "type": "range",
+      "id": "margin_top",
+      "min": 0,
+      "max": 150,
+      "step": 10,
+      "unit": "px",
+      "label": "Margin Top",
+      "default": 60
+    },
+    {
+      "type": "range",
+      "id": "margin_bottom",
+      "min": 0,
+      "max": 150,
+      "step": 10,
+      "unit": "px",
+      "label": "Margin Bottom",
+      "default": 60
+    }
+  ]
+}
+{% endschema %}

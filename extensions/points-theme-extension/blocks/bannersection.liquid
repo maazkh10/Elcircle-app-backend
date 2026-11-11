@@ -1,0 +1,373 @@
+{{ 'bannersection.css' | asset_url | stylesheet_tag }}
+
+<div class="noir-editorial-shell" id="EditorialSlider-{{ block.id }}">
+  <div class="noir-ambient-light"></div>
+  <div class="noir-floating-mark">{{ block.settings.watermark_text }}</div>
+
+  <div class="noir-left-column">
+    <div class="noir-content-wrap">
+      <div class="noir-micro-label">{{ block.settings.micro_label }}</div>
+      <h2 class="noir-main-title">
+        {{ block.settings.main_title_line_1 }}
+        <span>{{ block.settings.main_title_line_2 }}</span>
+      </h2>
+
+      <p class="noir-description">
+        {{ block.settings.main_description }}
+      </p>
+
+      <div class="noir-slider-stage">
+
+        <div class="noir-slide active-slide">
+          <div class="noir-slide-layout-box">
+            <div class="noir-slide-image-wrap">
+              {% if block.settings.card_img_pearl != blank %}
+                <img src="{{ block.settings.card_img_pearl | image_url: width: 1000 }}" alt="{{ block.settings.title_pearl | escape }}" class="luxury-card-img" loading="eager">
+              {% else %}
+                <div class="luxury-card-fallback">
+                  <img src="https://cdn.shopify.com/s/files/1/0649/2838/3074/files/ElCircle88_membership_card_diamond.png?v=1782387285" alt="Pearl Tier Card" class="luxury-card-img" loading="eager">
+                </div>
+              {% endif %}
+              <div class="noir-image-overlay"></div>
+            </div>
+            <div class="noir-slide-bottom">
+              <div>
+                <span class="noir-slide-index">01 / 08</span>
+                <h3 class="noir-slide-title">{{ block.settings.title_pearl }}</h3>
+              </div>
+              {% if block.settings.tag_pearl != blank %}
+                <span class="noir-slide-tag">{{ block.settings.tag_pearl }}</span>
+              {% endif %}
+            </div>
+            <p class="tier-perks-summary">{{ block.settings.desc_pearl }}</p>
+          </div>
+        </div>
+
+
+        <div class="noir-slide">
+
+        <div class="noir-slide-layout-box">
+
+          <div class="noir-slide-image-wrap">
+
+            {% if block.settings.card_img_silver != blank %}
+
+                <img src="{{ block.settings.card_img_silver | image_url: width: 1000 }}" alt="{{ block.settings.title_silver | escape }}" class="luxury-card-img" loading="lazy">
+
+                {% else %}
+
+              <div class="luxury-card-fallback">
+
+                <img src="https://cdn.shopify.com/s/files/1/0649/2838/3074/files/ElCircle88_membership_card_pearl.ai?v=1782385031" alt="Silver Tier Card" class="luxury-card-img" loading="lazy">
+
+                  </div>
+              {% endif %}
+              <div class="noir-image-overlay"></div>
+            </div>
+            <div class="noir-slide-bottom">
+              <div>
+                <span class="noir-slide-index">02 / 08</span>
+                <h3 class="noir-slide-title">{{ block.settings.title_silver }}</h3>
+              </div>
+              {% if block.settings.tag_silver != blank %}
+                <span class="noir-slide-tag">{{ block.settings.tag_silver }}</span>
+              {% endif %}
+            </div>
+            <p class="tier-perks-summary">{{ block.settings.desc_silver }}</p>
+          </div>
+        </div>
+
+
+        <div class="noir-slide">
+          <div class="noir-slide-layout-box">
+            <div class="noir-slide-image-wrap">
+              {% if block.settings.card_img_gold != blank %}
+                <img src="{{ block.settings.card_img_gold | image_url: width: 1000 }}" alt="{{ block.settings.title_gold | escape }}" class="luxury-card-img" loading="lazy">
+              {% else %}
+                <div class="luxury-card-fallback">
+                  <img src="https://cdn.shopify.com/s/files/1/0649/2838/3074/files/ElCircle88_membership_card_pearl.ai?v=1782385031" alt="Gold Tier Card" class="luxury-card-img" loading="lazy">
+                </div>
+              {% endif %}
+              <div class="noir-image-overlay"></div>
+            </div>
+            <div class="noir-slide-bottom">
+              <div>
+                <span class="noir-slide-index">03 / 08</span>
+                <h3 class="noir-slide-title">{{ block.settings.title_gold }}</h3>
+              </div>
+              {% if block.settings.tag_gold != blank %}
+                <span class="noir-slide-tag">{{ block.settings.tag_gold }}</span>
+              {% endif %}
+            </div>
+            <p class="tier-perks-summary">{{ block.settings.desc_gold }}</p>
+          </div>
+        </div>
+
+
+        <div class="noir-slide">
+          <div class="noir-slide-layout-box">
+            <div class="noir-slide-image-wrap">
+              {% if block.settings.card_img_platinum != blank %}
+                <img src="{{ block.settings.card_img_platinum | image_url: width: 1000 }}" alt="{{ block.settings.title_platinum | escape }}" class="luxury-card-img" loading="lazy">
+              {% else %}
+                <div class="luxury-card-fallback">
+                  <img src="https://cdn.shopify.com/s/files/1/0649/2838/3074/files/ElCircle88_membership_card_pearl.ai?v=1782385031" alt="Platinum Tier Card" class="luxury-card-img" loading="lazy">
+                </div>
+              {% endif %}
+              <div class="noir-image-overlay"></div>
+            </div>
+            <div class="noir-slide-bottom">
+              <div>
+                <span class="noir-slide-index">04 / 08</span>
+                <h3 class="noir-slide-title">{{ block.settings.title_platinum }}</h3>
+              </div>
+              {% if block.settings.tag_platinum != blank %}
+                <span class="noir-slide-tag">{{ block.settings.tag_platinum }}</span>
+              {% endif %}
+            </div>
+            <p class="tier-perks-summary">{{ block.settings.desc_platinum }}</p>
+          </div>
+        </div>
+
+
+        <div class="noir-slide">
+          <div class="noir-slide-layout-box">
+            <div class="noir-slide-image-wrap">
+              {% if block.settings.card_img_diamond != blank %}
+                <img src="{{ block.settings.card_img_diamond | image_url: width: 1000 }}" alt="{{ block.settings.title_diamond | escape }}" class="luxury-card-img" loading="lazy">
+              {% else %}
+                <div class="luxury-card-fallback">
+                  <img src="https://cdn.shopify.com/s/files/1/0649/2838/3074/files/ElCircle88_membership_card_pearl.ai?v=1782385031" alt="Diamond Tier Card" class="luxury-card-img" loading="lazy">
+                </div>
+              {% endif %}
+              <div class="noir-image-overlay"></div>
+            </div>
+            <div class="noir-slide-bottom">
+              <div>
+                <span class="noir-slide-index">05 / 08</span>
+                <h3 class="noir-slide-title">{{ block.settings.title_diamond }}</h3>
+              </div>
+              {% if block.settings.tag_diamond != blank %}
+                <span class="noir-slide-tag">{{ block.settings.tag_diamond }}</span>
+              {% endif %}
+            </div>
+            <p class="tier-perks-summary">{{ block.settings.desc_diamond }}</p>
+          </div>
+        </div>
+
+
+        <div class="noir-slide">
+          <div class="noir-slide-layout-box">
+            <div class="noir-slide-image-wrap">
+              {% if block.settings.card_img_emerald != blank %}
+                <img src="{{ block.settings.card_img_emerald | image_url: width: 1000 }}" alt="{{ block.settings.title_emerald | escape }}" class="luxury-card-img" loading="lazy">
+              {% else %}
+                <div class="luxury-card-fallback">
+                  <img src="https://cdn.shopify.com/s/files/1/0649/2838/3074/files/ElCircle88_membership_card_pearl.ai?v=1782385031" alt="Emerald Tier Card" class="luxury-card-img" loading="lazy">
+                </div>
+              {% endif %}
+              <div class="noir-image-overlay"></div>
+            </div>
+            <div class="noir-slide-bottom">
+              <div>
+                <span class="noir-slide-index">06 / 08</span>
+                <h3 class="noir-slide-title">{{ block.settings.title_emerald }}</h3>
+              </div>
+              {% if block.settings.tag_emerald != blank %}
+                <span class="noir-slide-tag">{{ block.settings.tag_emerald }}</span>
+              {% endif %}
+            </div>
+            <p class="tier-perks-summary">{{ block.settings.desc_emerald }}</p>
+          </div>
+        </div>
+
+
+        <div class="noir-slide">
+          <div class="noir-slide-layout-box">
+            <div class="noir-slide-image-wrap">
+              {% if block.settings.card_img_ruby != blank %}
+                <img src="{{ block.settings.card_img_ruby | image_url: width: 1000 }}" alt="{{ block.settings.title_ruby | escape }}" class="luxury-card-img" loading="lazy">
+              {% else %}
+                <div class="luxury-card-fallback">
+                  <img src="https://cdn.shopify.com/s/files/1/0649/2838/3074/files/ElCircle88_membership_card_pearl.ai?v=1782385031" alt="Ruby Tier Card" class="luxury-card-img" loading="lazy">
+                </div>
+              {% endif %}
+              <div class="noir-image-overlay"></div>
+            </div>
+            <div class="noir-slide-bottom">
+              <div>
+                <span class="noir-slide-index">07 / 08</span>
+                <h3 class="noir-slide-title">{{ block.settings.title_ruby }}</h3>
+              </div>
+              {% if block.settings.tag_ruby != blank %}
+                <span class="noir-slide-tag">{{ block.settings.tag_ruby }}</span>
+              {% endif %}
+            </div>
+            <p class="tier-perks-summary">{{ block.settings.desc_ruby }}</p>
+          </div>
+        </div>
+
+
+        <div class="noir-slide">
+          <div class="noir-slide-layout-box">
+            <div class="noir-slide-image-wrap">
+              {% if block.settings.card_img_infinite != blank %}
+                <img src="{{ block.settings.card_img_infinite | image_url: width: 1000 }}" alt="{{ block.settings.title_infinite | escape }}" class="luxury-card-img" loading="lazy">
+              {% else %}
+                <div class="luxury-card-fallback">
+                  <img src="https://cdn.shopify.com/s/files/1/0649/2838/3074/files/ElCircle88_membership_card_pearl.ai?v=1782385031" alt="Infinite Tier Card" class="luxury-card-img" loading="lazy">
+                </div>
+              {% endif %}
+              <div class="noir-image-overlay"></div>
+            </div>
+            <div class="noir-slide-bottom">
+              <div>
+                <span class="noir-slide-index">08 / 08</span>
+                <h3 class="noir-slide-title">{{ block.settings.title_infinite }}</h3>
+              </div>
+              {% if block.settings.tag_infinite != blank %}
+                <span class="noir-slide-tag">{{ block.settings.tag_infinite }}</span>
+              {% endif %}
+            </div>
+            <p class="tier-perks-summary">{{ block.settings.desc_infinite }}</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="noir-nav">
+        <button class="noir-nav-btn prev-btn" type="button">←</button>
+        <div class="noir-progress-line">
+          <div class="noir-progress-fill"></div>
+        </div>
+        <button class="noir-nav-btn next-btn" type="button">→</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="noir-right-column">
+    <div class="noir-right-image-shell">
+      <div class="noir-right-image-frame">
+
+        {% if block.settings.bg_img_pearl != blank %}
+          <img src="{{ block.settings.bg_img_pearl | image_url: width: 1600 }}" class="noir-bg-image" alt="{{ block.settings.title_pearl | escape }}" loading="eager">
+        {% else %}
+          <img src="https://images.unsplash.com/photo-1549298916-b41d501d3772?q=80&w=1600" class="noir-bg-image" alt="Pearl Lifestyle" loading="eager">
+        {% endif %}
+
+
+        {% if block.settings.bg_img_silver != blank %}
+          <img src="{{ block.settings.bg_img_silver | image_url: width: 1600 }}" class="noir-bg-image" alt="{{ block.settings.title_silver | escape }}" loading="lazy">
+        {% else %}
+          <img src="https://images.unsplash.com/photo-1509631179647-0177331693ae?q=80&w=1600" class="noir-bg-image" alt="Silver Lifestyle" loading="lazy">
+        {% endif %}
+
+
+        {% if block.settings.bg_img_gold != blank %}
+          <img src="{{ block.settings.bg_img_gold | image_url: width: 1600 }}" class="noir-bg-image" alt="{{ block.settings.title_gold | escape }}" loading="lazy">
+        {% else %}
+          <img src="https://images.unsplash.com/photo-1490481651871-ab68de25d43d?q=80&w=1600" class="noir-bg-image" alt="Gold Lifestyle" loading="lazy">
+        {% endif %}
+
+
+        {% if block.settings.bg_img_platinum != blank %}
+          <img src="{{ block.settings.bg_img_platinum | image_url: width: 1600 }}" class="noir-bg-image" alt="{{ block.settings.title_platinum | escape }}" loading="lazy">
+        {% else %}
+          <img src="https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?q=80&w=1600" class="noir-bg-image" alt="Platinum Lifestyle" loading="lazy">
+        {% endif %}
+
+
+        {% if block.settings.bg_img_diamond != blank %}
+          <img src="{{ block.settings.bg_img_diamond | image_url: width: 1600 }}" class="noir-bg-image" alt="{{ block.settings.title_diamond | escape }}" loading="lazy">
+        {% else %}
+          <img src="https://images.unsplash.com/photo-1485230895905-ec40ba36b9bc?q=80&w=1600" class="noir-bg-image" alt="Diamond Lifestyle" loading="lazy">
+        {% endif %}
+
+
+        {% if block.settings.bg_img_emerald != blank %}
+          <img src="{{ block.settings.bg_img_emerald | image_url: width: 1600 }}" class="noir-bg-image" alt="{{ block.settings.title_emerald | escape }}" loading="lazy">
+        {% else %}
+          <img src="https://images.unsplash.com/photo-1539109136881-3be0616acf4b?q=80&w=1600" class="noir-bg-image" alt="Emerald Lifestyle" loading="lazy">
+        {% endif %}
+
+
+        {% if block.settings.bg_img_ruby != blank %}
+          <img src="{{ block.settings.bg_img_ruby | image_url: width: 1600 }}" class="noir-bg-image" alt="{{ block.settings.title_ruby | escape }}" loading="lazy">
+        {% else %}
+          <img src="https://images.unsplash.com/photo-1492562080023-ab3db95bfbce?q=80&w=1600" class="noir-bg-image" alt="Ruby Lifestyle" loading="lazy">
+        {% endif %}
+
+
+        {% if block.settings.bg_img_infinite != blank %}
+          <img src="{{ block.settings.bg_img_infinite | image_url: width: 1600 }}" class="noir-bg-image" alt="{{ block.settings.title_infinite | escape }}" loading="lazy">
+        {% else %}
+          <img src="https://images.unsplash.com/photo-1509319117193-57bab727e09d?q=80&w=1600" class="noir-bg-image" alt="Infinite Lifestyle" loading="lazy">
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="{{ 'bannersection.js' | asset_url }}" defer></script>
+
+{% schema %}
+{
+  "name": "Luxury Lookbook Slider",
+  "target": "section",
+  "settings": [
+    { "type": "text", "id": "watermark_text", "label": "Watermark Text", "default": "88" },
+    { "type": "text", "id": "micro_label", "label": "Micro Label", "default": "EL CIRCLE 88 • MEMBERSHIP ECOSYSTEM" },
+    { "type": "text", "id": "main_title_line_1", "label": "Main Title (Line 1)", "default": "Elevate Your" },
+    { "type": "text", "id": "main_title_line_2", "label": "Main Title (Line 2)", "default": "Status & Privileges" },
+    { "type": "textarea", "id": "main_description", "label": "Main Description", "default": "Unlock unprecedented access, curated lifestyle rewards, and tailored atelier experiences as you progress through our ultra-luxury tier hierarchy." },
+
+    { "type": "text", "id": "title_pearl", "label": "01. Pearl Title", "default": "Pearl Tier" },
+    { "type": "text", "id": "tag_pearl", "label": "01. Pearl Tag", "default": "Entry Elite" },
+    { "type": "textarea", "id": "desc_pearl", "label": "01. Pearl Description", "default": "Complimentary global concierge consultation, foundational event entry, and baseline points multiplier." },
+    { "type": "image_picker", "id": "card_img_pearl", "label": "01. Pearl Card Graphic" },
+    { "type": "image_picker", "id": "bg_img_pearl", "label": "01. Pearl Background Photo" },
+
+    { "type": "text", "id": "title_silver", "label": "02. Silver Title", "default": "Silver Tier" },
+    { "type": "text", "id": "tag_silver", "label": "02. Silver Tag", "default": "Requires 5,000 pts" },
+    { "type": "textarea", "id": "desc_silver", "label": "02. Silver Description", "default": "Priority bespoke adjustments, 1.2x tier points multi, and access to regional private member showrooms." },
+    { "type": "image_picker", "id": "card_img_silver", "label": "02. Silver Card Graphic" },
+    { "type": "image_picker", "id": "bg_img_silver", "label": "02. Silver Background Photo" },
+
+    { "type": "text", "id": "title_gold", "label": "03. Gold Title", "default": "Gold Tier" },
+    { "type": "text", "id": "tag_gold", "label": "03. Gold Tag", "default": "Requires 15,000 pts" },
+    { "type": "textarea", "id": "desc_gold", "label": "03. Gold Description", "default": "Dedicated personal style curator, 1.5x multi, complimentary seasonal gifts, and private runway pre-sales." },
+    { "type": "image_picker", "id": "card_img_gold", "label": "03. Gold Card Graphic" },
+    { "type": "image_picker", "id": "bg_img_gold", "label": "03. Gold Background Photo" },
+
+    { "type": "text", "id": "title_platinum", "label": "04. Platinum Title", "default": "Platinum Tier" },
+    { "type": "text", "id": "tag_platinum", "label": "04. Platinum Tag", "default": "Requires 35,000 pts" },
+    { "type": "textarea", "id": "desc_platinum", "label": "04. Platinum Description", "default": "2.0x points accumulation, complete access to local club lounges, and tailored sizing fitting vault integration." },
+    { "type": "image_picker", "id": "card_img_platinum", "label": "04. Platinum Card Graphic" },
+    { "type": "image_picker", "id": "bg_img_platinum", "label": "04. Platinum Background Photo" },
+
+    { "type": "text", "id": "title_diamond", "label": "05. Diamond Title", "default": "Diamond Tier" },
+    { "type": "text", "id": "tag_diamond", "label": "05. Diamond Tag", "default": "Requires 75,000 pts" },
+    { "type": "textarea", "id": "desc_diamond", "label": "05. Diamond Description", "default": "Private flight partner upgrades, invite-only international design weeks, and 24/7 hyper-priority fulfillment." },
+    { "type": "image_picker", "id": "card_img_diamond", "label": "05. Diamond Card Graphic" },
+    { "type": "image_picker", "id": "bg_img_diamond", "label": "05. Diamond Background Photo" },
+
+    { "type": "text", "id": "title_emerald", "label": "06. Emerald Title", "default": "Emerald Tier" },
+    { "type": "text", "id": "tag_emerald", "label": "06. Emerald Tag", "default": "Requires 150,000 pts" },
+    { "type": "textarea", "id": "desc_emerald", "label": "06. Emerald Description", "default": "Uncapped multipliers, tailored luxury brand cross-gifting, and annual all-inclusive atelier retreats." },
+    { "type": "image_picker", "id": "card_img_emerald", "label": "06. Emerald Card Graphic" },
+    { "type": "image_picker", "id": "bg_img_emerald", "label": "06. Emerald Background Photo" },
+
+    { "type": "text", "id": "title_ruby", "label": "07. Ruby Title", "default": "Ruby Tier" },
+    { "type": "text", "id": "tag_ruby", "label": "07. Ruby Tag", "default": "Requires 300,000 pts" },
+    { "type": "textarea", "id": "desc_ruby", "label": "07. Ruby Description", "default": "Direct access to lead creative directors, fully personalized custom fabric milling options, and bespoke private galas." },
+    { "type": "image_picker", "id": "card_img_ruby", "label": "07. Ruby Card Graphic" },
+    { "type": "image_picker", "id": "bg_img_ruby", "label": "07. Ruby Background Photo" },
+
+    { "type": "text", "id": "title_infinite", "label": "08. Infinite Title", "default": "Infinite Tier" },
+    { "type": "text", "id": "tag_infinite", "label": "08. Infinite Tag", "default": "By Invitation Only" },
+    { "type": "textarea", "id": "desc_infinite", "label": "08. Infinite Description", "default": "The absolute pinnacle. Custom-designed metal credentials, lifetime bespoke allocations, and sovereign asset management privileges." },
+    { "type": "image_picker", "id": "card_img_infinite", "label": "08. Infinite Card Graphic" },
+    { "type": "image_picker", "id": "bg_img_infinite", "label": "08. Infinite Background Photo" }
+  ]
+}
+{% endschema %}

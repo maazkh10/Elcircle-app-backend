@@ -1,0 +1,24 @@
+# Learn more about configuring your app at https://shopify.dev/docs/apps/tools/cli/configuration
+
+client_id = "c5f35c7c862ac4f79cce0c6beaee0591"
+name = "Elcircle Loyalty"
+application_url = "https://tracy-asn-act-diff.trycloudflare.com"
+embedded = true
+
+[access_scopes]
+# Learn more at https://shopify.dev/docs/apps/tools/cli/configuration#access_scopes
+scopes = "read_customers,read_orders,write_orders,read_store_credit_accounts,write_app_proxy,write_discounts,write_draft_orders,write_products,write_store_credit_account_transactions"
+
+[auth]
+redirect_urls = [ "https://tracy-asn-act-diff.trycloudflare.com/auth/callback" ]
+
+[webhooks]
+api_version = "2026-10"
+
+[build]
+automatically_update_urls_on_dev = false
+
+[app_proxy]
+url = "/api/membership"
+prefix = "apps"
+subpath = "elcircle-membership"

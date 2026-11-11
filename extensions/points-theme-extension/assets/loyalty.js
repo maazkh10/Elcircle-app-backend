@@ -1,5 +1,5 @@
 (function() {
-  const API_URL = "https://regina-cycadlike-senatorially.ngrok-free.dev";
+  const API_URL = "/apps/elcircle-membership";
   const shop = window.Shopify?.shop || window.shopDomain || new URLSearchParams(window.location.search).get("shop");
   const cleanEmail = window.customerEmail?.toLowerCase().trim();
 
@@ -7,11 +7,11 @@
 
   async function initializeLoyaltyInterface() {
     try {
-      const response = await fetch(`${API_URL}/api/loyalty/points?email=${encodeURIComponent(cleanEmail)}&shop=${shop}`, {
+      const response = await fetch(`${API_URL}/loyalty/points`, {
         method: "GET",
         headers: {
           "Accept": "application/json",
-          "ngrok-skip-browser-warning": "true"
+
         }
       });
       const data = await response.json();
@@ -33,21 +33,21 @@
 
       slider.max = totalPoints;
 
-      function updateSliderReadout() {
+      const updateSliderReadout = () => {
         const selectedPoints = parseInt(slider.value, 10);
         pointsValText.innerText = selectedPoints;
         moneyValText.innerText = (selectedPoints / 20).toFixed(2);
-        
+
         const percentage = ((selectedPoints - slider.min) / (slider.max - slider.min)) * 100;
         slider.style.backgroundSize = `${percentage}% 100%`;
-      }
+      };
 
       document.getElementsByName("use_points").forEach(radio => {
         radio.addEventListener("change", (e) => {
           if (e.target.value === "yes" && e.target.checked) {
             sliderPanel.style.display = "block";
             if (parseInt(slider.value, 10) === 0) {
-              slider.value = 20; 
+              slider.value = 20;
             }
             updateSliderReadout();
           } else {
@@ -70,7 +70,7 @@
   }
 
   // Intercept checkout click event safely
-  
+
   // Intercept checkout click event safely
 document.addEventListener("click", async (e) => {
   // 1. STRIPPED OUT button[name='add'] and .product-form__submit to prevent clashing with cart additions
@@ -113,17 +113,17 @@ document.addEventListener("click", async (e) => {
       }
     }
 
-    const response = await fetch(`${API_URL}/api/loyalty/redeem`, {
+    const response = await fetch(`${API_URL}/loyalty/redeem`, {
       method: "POST",
-      headers: { 
-        "Content-Type": "application/json", 
+      headers: {
+        "Content-Type": "application/json",
         "Accept": "application/json",
-        "ngrok-skip-browser-warning": "true" 
+
       },
-      body: JSON.stringify({ 
-        email: cleanEmail, 
-        shop: shop, 
-        points: pointsToRedeem 
+      body: JSON.stringify({
+        email: cleanEmail,
+        shop: shop,
+        points: pointsToRedeem
       })
     });
 

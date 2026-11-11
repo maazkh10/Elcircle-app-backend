@@ -1,0 +1,81 @@
+<div class="ec-rw-wrap" id="EcRw-{{ block.id }}">
+  <div class="ec-drawer">
+    <button class="ec-close" aria-label="Close">✕</button>
+    <div class="ec-inner">
+      <div class="ec-badge">EL CIRCLE 88 PRIVÉ</div>
+      <h3 class="ec-title">The Rewards of <span>Sovereign Status</span></h3>
+      <p class="ec-sub">Earn 1 point for every $1 spent. Accumulate assets to step into higher-tier privileges and exclusive pricing allocations.</p>
+
+      <div class="ec-track">
+        <span class="ec-node active">Pearl</span><span class="ec-sep">→</span>
+        <span class="ec-node">Silver</span><span class="ec-sep">→</span>
+        <span class="ec-node gold">Gold Only</span><span class="ec-sep">→</span>
+        <span class="ec-node vip">Infinite</span>
+      </div>
+
+      <div class="ec-btn-box">
+        {% if customer %}
+          <a href="{{ pages['reward-page'].url | default: '/pages/reward-page' }}" class="ec-btn">
+            <span>ENTER REWARDS DASHBOARD</span> →
+          </a>
+        {% else %}
+          <a href="{{ routes.account_register_url }}" class="ec-btn">
+            <span>JOIN NOW & EARN 25 POINTS</span> →
+          </a>
+        {% endif %}
+      </div>
+
+      <p class="ec-foot">
+        {% if customer %}
+          Welcome back, {{ customer.first_name }}. Your tier multipliers are active.
+        {% else %}
+          Membership is complimentary. Already registered? <a href="{{ routes.account_login_url }}">Sign in</a>
+        {% endif %}
+      </p>
+    </div>
+  </div>
+
+  <div class="ec-bar">
+    <div class="ec-bar-cnt">
+      <span class="ec-dot"></span>
+      <span>JOIN THE CLUB: SIGN UP TO EARN REWARDS</span>
+    </div>
+    <span class="ec-toggle">▲</span>
+  </div>
+</div>
+
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+  const wrapper = document.querySelector("#EcRw-{{ block.id }}");
+  if (!wrapper) return;
+  const bar = wrapper.querySelector(".ec-bar");
+  const drawer = wrapper.querySelector(".ec-drawer");
+  const toggle = wrapper.querySelector(".ec-toggle");
+
+  const close = (e) => {
+    if(e) e.stopPropagation();
+    drawer.classList.remove("open");
+    toggle.textContent = "▲";
+  };
+
+  bar.addEventListener("click", () => {
+    if (drawer.classList.contains("open")) {
+      close();
+    } else {
+      drawer.classList.add("open");
+      toggle.textContent = "▼";
+    }
+  });
+  wrapper.querySelector(".ec-close").addEventListener("click", close);
+});
+</script>
+
+{{ 'sticky-rewards-migrated.css' | asset_url | stylesheet_tag }}
+
+{% schema %}
+{
+  "name": "Sticky Rewards",
+  "target": "body",
+  "settings": []
+}
+{% endschema %}

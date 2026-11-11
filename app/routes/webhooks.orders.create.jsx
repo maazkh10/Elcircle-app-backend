@@ -1,4 +1,6 @@
 import CustomerPoints from "../models/CustomerPoints.server";
+import { connectMongo } from "../lib/db.server";
+import { authenticate } from "../shopify.server";
 
 export const loader = async () => {
   return new Response("Webhook endpoint active", { status: 200 });
@@ -7,10 +9,7 @@ export const loader = async () => {
 export const action = async ({ request }) => {
   try {
 
-    // 🔥 ADD HERE
-    const shop = request.headers.get("x-shopify-shop-domain");
-
-    const order = await request.json();
+    const { shop, payload: order } = await authenticate.webhook(request);
 
     if (order.financial_status !== "paid") {
       return new Response("Waiting for payment", { status: 200 });
@@ -33,6 +32,7 @@ export const action = async ({ request }) => {
 
     const usedPoints = Number(loyaltyCode.code.split("-")[1]);
 
+    await connectMongo();
     const customer = await CustomerPoints.findOne({ shop, email });
 
     if (!customer) {
@@ -52,6 +52,7 @@ export const action = async ({ request }) => {
     return new Response("Points deducted", { status: 200 });
 
   } catch (err) {
+    if (err instanceof Response) return err;
     console.error("Webhook Error:", err);
     return new Response("Error", { status: 200 });
   }

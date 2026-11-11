@@ -1,0 +1,433 @@
+{% assign config = shop.metafields.rewards_widget.config.value %}
+{% assign widget_enabled = block.settings.enabled %}
+{% if widget_enabled == blank %}
+  {% assign widget_enabled = true %}
+{% endif %}
+{% assign main_logo = '' %}
+{% assign main_image = '' %}
+{% assign side_text = 'MAISON' %}
+{% assign main_eyebrow = 'EXCLUSIVE LOOKBOOK SERIES' %}
+{% assign main_heading = 'Curated' %}
+{% assign main_heading_italic = 'Visual Narratives' %}
+{% assign main_description = 'Discover exclusive membership privileges, luxury brands and curated rewards.' %}
+{% assign card_enabled = true %}
+{% assign card_badge = 'EST. 2026' %}
+{% assign card_title = 'Maison Capsule' %}
+{% assign card_description = 'Exclusive access to curated luxury experiences.' %}
+{% assign primary_text = 'Explore Collection' %}
+{% assign primary_url = '#' %}
+{% assign secondary_text = 'View Membership' %}
+{% assign modal_eyebrow = 'MAISON ACCESS TIERS' %}
+{% assign modal_title = 'Membership Privileges' %}
+{% assign modal_description = 'Explore the brands and benefits available across each membership tier.' %}
+{% assign heading_font = 'Cormorant Garamond' %}
+{% assign body_font = 'Inter' %}
+{% assign background = '#f7f5f1' %}
+{% assign accent = '#b99544' %}
+{% assign text = '#111111' %}
+{% assign muted = '#666666' %}
+{% assign card_background = '#ffffff' %}
+{% assign button_background = '#111111' %}
+{% assign button_text = '#ffffff' %}
+{% if block.settings.main_image != blank %}
+  {% assign main_image = block.settings.main_image | image_url: width: 1600 %}
+{% endif %}
+{% if block.settings.main_logo != blank %}
+  {% assign main_logo = block.settings.main_logo | image_url: width: 400 %}
+{% endif %}
+{% if block.settings.heading != blank %}
+  {% assign main_heading = block.settings.heading %}
+{% endif %}
+{% if block.settings.description != blank %}
+  {% assign main_description = block.settings.description %}
+{% endif %}
+{% if block.settings.primary_url != blank %}
+  {% assign primary_url = block.settings.primary_url %}
+{% endif %}
+{% if config != blank %}
+  {% if config.enabled == false %}
+    {% assign widget_enabled = false %}
+  {% endif %}
+  {% if config.main.logo != blank %}
+    {% assign main_logo = config.main.logo %}
+  {% endif %}
+  {% if config.main.image != blank %}
+    {% assign main_image = config.main.image %}
+  {% endif %}
+  {% if config.main.side_text != blank %}
+    {% assign side_text = config.main.side_text %}
+  {% endif %}
+  {% if config.main.eyebrow != blank %}
+    {% assign main_eyebrow = config.main.eyebrow %}
+  {% endif %}
+  {% if config.main.heading != blank %}
+    {% assign main_heading = config.main.heading %}
+  {% endif %}
+  {% if config.main.heading_italic != blank %}
+    {% assign main_heading_italic = config.main.heading_italic %}
+  {% endif %}
+  {% if config.main.description != blank %}
+    {% assign main_description = config.main.description %}
+  {% endif %}
+  {% if config.card.enabled != blank %}
+    {% assign card_enabled = config.card.enabled %}
+  {% endif %}
+  {% if config.card.badge != blank %}
+    {% assign card_badge = config.card.badge %}
+  {% endif %}
+  {% if config.card.title != blank %}
+    {% assign card_title = config.card.title %}
+  {% endif %}
+  {% if config.card.description != blank %}
+    {% assign card_description = config.card.description %}
+  {% endif %}
+  {% if config.buttons.primary_text != blank %}
+    {% assign primary_text = config.buttons.primary_text %}
+  {% endif %}
+  {% if config.buttons.primary_url != blank %}
+    {% assign primary_url = config.buttons.primary_url %}
+  {% endif %}
+  {% if config.buttons.secondary_text != blank %}
+    {% assign secondary_text = config.buttons.secondary_text %}
+  {% endif %}
+  {% if config.modal.eyebrow != blank %}
+    {% assign modal_eyebrow = config.modal.eyebrow %}
+  {% endif %}
+  {% if config.modal.title != blank %}
+    {% assign modal_title = config.modal.title %}
+  {% endif %}
+  {% if config.modal.description != blank %}
+    {% assign modal_description = config.modal.description %}
+  {% endif %}
+  {% if config.style.font_heading != blank %}
+    {% assign heading_font = config.style.font_heading %}
+  {% endif %}
+  {% if config.style.font_body != blank %}
+    {% assign body_font = config.style.font_body %}
+  {% endif %}
+  {% if config.style.background != blank %}
+    {% assign background = config.style.background %}
+  {% endif %}
+  {% if config.style.accent != blank %}
+    {% assign accent = config.style.accent %}
+  {% endif %}
+  {% if config.style.text != blank %}
+    {% assign text = config.style.text %}
+  {% endif %}
+  {% if config.style.muted != blank %}
+    {% assign muted = config.style.muted %}
+  {% endif %}
+  {% if config.style.card_background != blank %}
+    {% assign card_background = config.style.card_background %}
+  {% endif %}
+  {% if config.style.button_background != blank %}
+    {% assign button_background = config.style.button_background %}
+  {% endif %}
+  {% if config.style.button_text != blank %}
+    {% assign button_text = config.style.button_text %}
+  {% endif %}
+{% endif %}
+{% assign uid = 'rewards-widget-' | append: block.id %}
+{% if widget_enabled != false %}
+  <div
+    id="{{ uid }}"
+    class="rewards-widget"
+    data-rewards-widget
+    data-block-id="{{ block.id }}"
+    style="
+      --rw-heading-font: '{{ heading_font | escape }}', serif;
+      --rw-body-font: '{{ body_font | escape }}', sans-serif;
+      --rw-background: {{ background }};
+      --rw-accent: {{ accent }};
+      --rw-text: {{ text }};
+      --rw-muted: {{ muted }};
+      --rw-card-background: {{ card_background }};
+      --rw-button-background: {{ button_background }};
+      --rw-button-text: {{ button_text }};
+    "
+    {{ block.shopify_attributes }}
+  >
+    <section class="rw-shell">
+      {% if side_text != blank %}
+        <div class="rw-side-mark">
+          {{ side_text | escape }}
+        </div>
+      {% endif %}
+      <div class="rw-container">
+        <div class="rw-visual">
+          <div class="rw-image-stack">
+            <div class="rw-back-frame"></div>
+            <div class="rw-main-image">
+              {% if main_image != blank %}
+                <img
+                  src="{{ main_image }}"
+                  alt="{{ main_heading | escape }}"
+                  loading="lazy"
+                  width="1200"
+                  height="900"
+                >
+              {% elsif main_logo != blank %}
+                <div class="rw-empty-image">
+                  <img
+                    src="{{ main_logo }}"
+                    alt="Rewards"
+                    loading="lazy"
+                  >
+                </div>
+              {% else %}
+                <div class="rw-empty-image">
+                  <span>
+                    Rewards
+                  </span>
+                </div>
+              {% endif %}
+              <div class="rw-image-overlay"></div>
+            </div>
+            {% if card_enabled != false %}
+              <div class="rw-floating-card">
+                {% if main_logo != blank %}
+                  <div class="rw-floating-logo">
+                    <img
+                      src="{{ main_logo }}"
+                      alt="Logo"
+                      loading="lazy"
+                    >
+                  </div>
+                {% endif %}
+                {% if card_badge != blank %}
+                  <span class="rw-card-badge">
+                    {{ card_badge | escape }}
+                  </span>
+                {% endif %}
+                {% if card_title != blank %}
+                  <h4>
+                    {{ card_title | escape }}
+                  </h4>
+                {% endif %}
+                {% if card_description != blank %}
+                  <p>
+                    {{ card_description | escape }}
+                  </p>
+                {% endif %}
+              </div>
+            {% endif %}
+          </div>
+        </div>
+        <div class="rw-content">
+          {% if main_logo != blank %}
+            <div class="rw-main-logo">
+              <img
+                src="{{ main_logo }}"
+                alt="Logo"
+                loading="lazy"
+              >
+            </div>
+          {% endif %}
+          {% if main_eyebrow != blank %}
+            <div class="rw-eyebrow">
+              <span></span>
+              {{ main_eyebrow | escape }}
+            </div>
+          {% endif %}
+          {% if main_heading != blank %}
+            <h2 class="rw-heading">
+              {{ main_heading | escape }}
+              {% if main_heading_italic != blank %}
+                <em>
+                  {{ main_heading_italic | escape }}
+                </em>
+              {% endif %}
+            </h2>
+          {% endif %}
+          {% if main_description != blank %}
+            <p class="rw-description">
+              {{ main_description | escape }}
+            </p>
+          {% endif %}
+          <div class="rw-buttons">
+            {% if primary_text != blank %}
+              <a
+                href="{{ primary_url | default: '#' }}"
+                class="rw-primary-button"
+              >
+                {{ primary_text | escape }}
+              </a>
+            {% endif %}
+            {% if secondary_text != blank %}
+              <button
+                type="button"
+                class="rw-secondary-button"
+                data-open-rewards-modal
+              >
+                {{ secondary_text | escape }}
+              </button>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+    </section>
+    <div
+      class="rw-modal"
+      data-rewards-modal
+      aria-hidden="true"
+    >
+      <div
+        class="rw-modal-overlay"
+        data-close-rewards-modal
+      ></div>
+      <div
+        class="rw-modal-box"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="{{ uid }}-modal-title"
+      >
+        <button
+          type="button"
+          class="rw-close"
+          data-close-rewards-modal
+          aria-label="Close membership popup"
+        >
+          <span aria-hidden="true">×</span>
+        </button>
+        <div class="rw-modal-header">
+          {% if main_logo != blank %}
+            <div class="rw-modal-logo">
+              <img
+                src="{{ main_logo }}"
+                alt="Logo"
+                loading="lazy"
+              >
+            </div>
+          {% endif %}
+          {% if modal_eyebrow != blank %}
+            <span class="rw-modal-eyebrow">
+              {{ modal_eyebrow | escape }}
+            </span>
+          {% endif %}
+          {% if modal_title != blank %}
+            <h3 id="{{ uid }}-modal-title">
+              {{ modal_title | escape }}
+            </h3>
+          {% endif %}
+          {% if modal_description != blank %}
+            <p>
+              {{ modal_description | escape }}
+            </p>
+          {% endif %}
+        </div>
+        <div class="rw-tier-grid">
+          {% if config != blank and config.tiers != blank %}
+            {% for tier in config.tiers %}
+              <article
+                class="rw-tier-card"
+                data-tier-index="{{ forloop.index0 }}"
+              >
+                <div class="rw-tier-logo">
+                  {% if tier.logo != blank %}
+                    <img
+                      src="{{ tier.logo }}"
+                      alt="{{ tier.name | escape }}"
+                      loading="lazy"
+                    >
+                  {% else %}
+                    <span aria-hidden="true">
+                      ✦
+                    </span>
+                  {% endif %}
+                </div>
+                {% if tier.name != blank %}
+                  <h4>
+                    {{ tier.name | escape }}
+                  </h4>
+                {% endif %}
+                {% if tier.description != blank %}
+                  <p class="rw-tier-description">
+                    {{ tier.description | escape }}
+                  </p>
+                {% endif %}
+                {% if tier.brands != blank %}
+                  <div class="rw-brands">
+                    <div class="rw-brands-label">
+                      {{ tier.brands_label | default: 'Included Brands' | escape }}
+                    </div>
+                    <div class="rw-brand-list">
+                      {% for brand in tier.brands %}
+                        <div
+                          class="rw-brand"
+                          data-brand-index="{{ forloop.index0 }}"
+                        >
+                          {% if brand.logo != blank %}
+                            <div class="rw-brand-logo">
+                              <img
+                                src="{{ brand.logo }}"
+                                alt="{{ brand.name | escape }}"
+                                loading="lazy"
+                              >
+                            </div>
+                          {% endif %}
+                          {% if brand.name != blank %}
+                            <span class="rw-brand-name">
+                              {{ brand.name | escape }}
+                            </span>
+                          {% endif %}
+                        </div>
+                      {% endfor %}
+                    </div>
+                  </div>
+                {% endif %}
+                {% if tier.button_text != blank %}
+                  <a
+                    href="{{ tier.button_url | default: '#' }}"
+                    class="rw-tier-button"
+                  >
+                    {{ tier.button_text | escape }}
+                  </a>
+                {% endif %}
+              </article>
+            {% endfor %}
+          {% else %}
+            <div class="rw-no-tiers">
+              <div class="rw-no-tiers-icon">
+                ✦
+              </div>
+              <p>
+                Membership tiers will appear here.
+              </p>
+            </div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+{% endif %}
+{{ 'lookbookbanner.css' | asset_url | stylesheet_tag }}
+<script
+  src="{{ 'lookbookbanner.js' | asset_url }}"
+  defer
+></script>
+{% schema %}
+{
+  "name": "Rewards Membership",
+  "target": "section",
+  "javascript": "lookbook-ui.js",
+  "settings": [
+    { "type": "image_picker", "id": "main_image", "label": "Lookbook image" },
+    { "type": "image_picker", "id": "main_logo", "label": "Logo" },
+    { "type": "text", "id": "heading", "label": "Heading" },
+    { "type": "textarea", "id": "description", "label": "Description" },
+    { "type": "url", "id": "primary_url", "label": "Explore collection link" },
+    {
+      "type": "checkbox",
+      "id": "enabled",
+      "label": "Enable widget",
+      "default": true
+    },
+    {
+      "type": "text",
+      "id": "widget_identifier",
+      "label": "Widget identifier",
+      "default": "rewards-membership"
+    }
+  ]
+}
+{% endschema %}

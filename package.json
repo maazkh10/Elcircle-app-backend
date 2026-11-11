@@ -3,7 +3,11 @@
   "private": true,
   "scripts": {
     "build": "react-router build",
-    "dev": "shopify app dev",
+    "build:vercel": "prisma generate --schema prisma/vercel/schema.prisma && react-router build",
+    "db:deploy:vercel": "prisma migrate deploy --schema prisma/vercel/schema.prisma",
+    "dev": "node scripts/dev-new-store.mjs",
+    "dev:shopify": "shopify app dev",
+    "dev:web": "react-router dev",
     "config:link": "shopify app config link",
     "generate": "shopify app generate",
     "deploy": "shopify app deploy",
@@ -44,6 +48,7 @@
   },
   "devDependencies": {
     "@shopify/api-codegen-preset": "^1.2.0",
+    "@shopify/cli": "4.9.3",
     "@shopify/polaris-types": "^1.0.1",
     "@types/eslint": "^9.6.1",
     "@types/node": "^22.18.8",

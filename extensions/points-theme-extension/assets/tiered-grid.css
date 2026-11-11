@@ -1,0 +1,274 @@
+
+/* Luxury collection grid */
+
+.luxury-showroom-wrapper {
+  background: #fff;
+  padding: 24px 16px 48px;
+  color: #111;
+  font-family: Inter, Arial, sans-serif;
+}
+
+.luxury-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 26px 8px;
+  width: 100%;
+  max-width: 1600px;
+  margin: 0 auto;
+}
+
+.luxury-card {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  background: #fff;
+}
+
+.luxury-image-wrapper {
+  position: relative;
+  display: block;
+  overflow: hidden;
+  aspect-ratio: 3 / 4.2;
+  background: #e8e7e5;
+  color: inherit;
+  text-decoration: none;
+}
+
+.luxury-image {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform .4s ease, filter .3s ease;
+}
+
+.luxury-card:not(.is-locked):hover .luxury-image {
+  transform: scale(1.035);
+}
+
+/* Lock treatment */
+
+.luxury-card.is-locked .luxury-image {
+  filter: blur(8px) grayscale(65%);
+  transform: scale(1.035);
+}
+
+.luxury-lock-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  background: rgb(255 255 255 / 28%);
+  transition: opacity .25s ease;
+}
+
+.luxury-lock-icon {
+  display: flex;
+  width: 44px;
+  height: 44px;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: #fff;
+  color: #111;
+  box-shadow: 0 3px 15px rgb(0 0 0 / 10%);
+}
+
+.luxury-tier-badge {
+  padding: 9px 14px;
+  border-radius: 24px;
+  background: #111;
+  color: #fff;
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 1.8px;
+  text-align: center;
+}
+
+.luxury-meta {
+  padding: 10px 2px 0;
+}
+
+.luxury-title {
+  margin: 0 0 5px;
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 1.45;
+}
+
+.luxury-title a {
+  color: #111;
+  text-decoration: none;
+}
+
+.luxury-vendor {
+  margin: 0 0 5px;
+  color: #777;
+  font-size: 10px;
+  letter-spacing: 1px;
+}
+
+.luxury-price {
+  margin: 0 0 10px;
+  color: #222;
+  font-size: 11px;
+}
+
+.luxury-enquiry-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 38px;
+  padding: 9px 10px;
+  border: 1px solid #111;
+  background: #111;
+  color: #fff;
+  font: inherit;
+  font-size: 10px;
+  letter-spacing: .5px;
+  text-align: center;
+  text-decoration: none;
+  cursor: pointer;
+  transition: background .2s ease, color .2s ease;
+}
+
+.luxury-enquiry-btn:hover {
+  background: #fff;
+  color: #111;
+}
+
+.luxury-enquiry-btn.secondary-btn {
+  background: #fff;
+  color: #111;
+}
+
+.luxury-enquiry-btn.secondary-btn:hover {
+  background: #111;
+  color: #fff;
+}
+
+.luxury-action-row {
+  display: flex;
+  gap: 8px;
+}
+
+.luxury-action-row > * {
+  flex: 1;
+}
+
+.luxury-action-row[hidden],
+.locked-btn[hidden],
+.luxury-lock-overlay[hidden] {
+  display: none !important;
+}
+
+.luxury-collection-empty {
+  padding: 50px 16px;
+  color: #777;
+  text-align: center;
+}
+
+/* Modals */
+
+body.luxury-modal-open {
+  overflow: hidden !important;
+}
+
+.luxury-modal[hidden] {
+  display: none !important;
+}
+
+.luxury-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 2147483647;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  background: rgb(0 0 0 / 55%);
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition: opacity .25s ease, visibility .25s ease;
+}
+
+.luxury-modal.is-active {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+}
+
+.luxury-modal-backdrop {
+  position: absolute;
+  inset: 0;
+}
+
+.luxury-modal-content {
+  position: relative;
+  z-index: 1;
+  width: min(100%, 900px);
+  max-height: 90vh;
+  overflow: auto;
+  padding: 28px;
+  border-radius: 8px;
+  background: #fff;
+}
+
+.luxury-modal-close {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  z-index: 3;
+  width: 38px;
+  height: 38px;
+  border: 0;
+  border-radius: 50%;
+  background: #f2f2f2;
+  color: #111;
+  font-size: 24px;
+  cursor: pointer;
+}
+
+@media (min-width: 1500px) {
+  .luxury-showroom-wrapper {
+    padding-right: 28px;
+    padding-left: 28px;
+  }
+}
+
+@media (max-width: 900px) {
+  .luxury-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 22px 8px;
+  }
+}
+
+@media (max-width: 600px) {
+  .luxury-showroom-wrapper {
+    padding: 16px 10px 32px;
+  }
+
+  .luxury-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 20px 8px;
+  }
+
+  .luxury-title {
+    font-size: 11px;
+  }
+
+  .luxury-tier-badge {
+    padding: 7px 9px;
+    font-size: 8px;
+    letter-spacing: 1px;
+  }
+
+  .luxury-modal-content {
+    padding: 22px 16px;
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "dependencies": {
+    "@shopify/ui-extensions": "2026.10.x",
+    "@preact/signals": "^2.3.0",
+    "preact": "^10.10.0"
+  },
+  "private": true,
+  "type": "module",
+  "name": "customm-dash",
+  "version": "1.0.0"
+}
