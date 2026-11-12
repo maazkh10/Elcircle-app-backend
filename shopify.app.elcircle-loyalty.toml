@@ -2,7 +2,7 @@
 
 client_id = "c5f35c7c862ac4f79cce0c6beaee0591"
 name = "Elcircle Loyalty"
-application_url = "https://tracy-asn-act-diff.trycloudflare.com"
+application_url = "https://elcircle-app-backend-ee6d.vercel.app"
 embedded = true
 
 [access_scopes]
@@ -10,7 +10,7 @@ embedded = true
 scopes = "read_customers,read_orders,write_orders,read_store_credit_accounts,write_app_proxy,write_discounts,write_draft_orders,write_products,write_store_credit_account_transactions"
 
 [auth]
-redirect_urls = [ "https://tracy-asn-act-diff.trycloudflare.com/auth/callback" ]
+redirect_urls = [ "https://elcircle-app-backend-ee6d.vercel.app/auth/callback" ]
 
 [webhooks]
 api_version = "2026-10"

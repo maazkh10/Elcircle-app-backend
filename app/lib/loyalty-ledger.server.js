@@ -1,4 +1,4 @@
-import prisma from "../db.server";
+import { loadOfflineSession } from "../session-storage.server";
 
 const PARTNER_MODEL = "res.partner";
 
@@ -296,16 +296,7 @@ function classifyOrder(order) {
 
 
 async function getOfflineToken(shop) {
-  let session = await prisma.session.findUnique({
-    where: { id: `offline_${shop}` },
-  });
-
-  if (!session?.accessToken) {
-    session = await prisma.session.findFirst({
-      where: { shop, isOnline: false },
-      orderBy: { expires: "desc" },
-    });
-  }
+  const session = await loadOfflineSession(shop);
 
   if (!session?.accessToken) {
     throw new Error(`No offline Shopify access token for ${shop}.`);

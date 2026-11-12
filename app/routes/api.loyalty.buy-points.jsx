@@ -1,7 +1,7 @@
 import { getAuthenticatedStorefrontCustomer } from "../lib/storefront-customer.server";
 
 // this was the old code for mondo db
-// import prisma from "../db.server";
+// import { loadOfflineSession } from "../session-storage.server";
 
 // const corsHeaders = {
 //   "Access-Control-Allow-Origin": "*",
@@ -206,7 +206,7 @@ import { getAuthenticatedStorefrontCustomer } from "../lib/storefront-customer.s
 
 
 // import process from "node:process";
-// import prisma from "../db.server"; // Import Prisma directly to load the session safely
+// import { loadOfflineSession } from "../session-storage.server"; // Import Prisma directly to load the session safely
 
 // // ==========================================
 // // 1. CONFIGURATION & ENVIRONMENT VARIABLES
@@ -482,7 +482,7 @@ import { getAuthenticatedStorefrontCustomer } from "../lib/storefront-customer.s
 
 
 import process from "node:process";
-import prisma from "../db.server";
+import { loadOfflineSession } from "../session-storage.server";
 
 // ======================================================
 // 1. CONFIGURATION
@@ -822,28 +822,12 @@ async function getShopifyAccessToken(cleanShop) {
     return accessToken;
   }
 
-  // Second: Prisma offline session
+  // Second: the configured persistent Shopify session store
   console.log(
     `[Shopify Context] Looking for offline session: ${cleanShop}`
   );
 
-  let sessionRecord = await prisma.session.findUnique({
-    where: {
-      id: `offline_${cleanShop}`,
-    },
-  });
-
-  if (!sessionRecord?.accessToken) {
-    sessionRecord = await prisma.session.findFirst({
-      where: {
-        shop: cleanShop,
-        isOnline: false,
-      },
-      orderBy: {
-        expires: "desc",
-      },
-    });
-  }
+  const sessionRecord = await loadOfflineSession(cleanShop);
 
   accessToken = sessionRecord?.accessToken;
 

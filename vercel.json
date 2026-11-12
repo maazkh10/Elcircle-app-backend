@@ -1,4 +1,5 @@
 {
   "framework": "react-router",
-  "buildCommand": "npm run build:vercel"
+  "buildCommand": "npm run build:vercel",
+  "regions": ["bom1"]
 }
