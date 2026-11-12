@@ -85,3 +85,36 @@ test("rejects ciphertext moved to another session ID and incorrect encryption se
   const wrongSecret = new OdooSessionStorage({ env: { ...env, SHOPIFY_API_SECRET: "wrong" }, fetch: remote.fetch });
   await assert.rejects(() => wrongSecret.loadSession(session.id));
 });
+
+test("simultaneous route loaders share a read but receive independent session objects", async () => {
+  const remote = remoteStore();
+  let reads = 0;
+  const fetch = async (url, options) => {
+    if (JSON.parse(options.body).params.args[4] === "get_param") reads++;
+    return remote.fetch(url, options);
+  };
+  const storage = new OdooSessionStorage({ env, fetch });
+  const session = new Session({ id: "offline_first.myshopify.com", shop: "first.myshopify.com", state: "", isOnline: false });
+  await storage.storeSession(session);
+  const [a, b] = await Promise.all([storage.loadSession(session.id), storage.loadSession(session.id)]);
+  assert.equal(reads, 1);
+  a.scope = "changed";
+  assert.notEqual(a.scope, b.scope);
+});
+
+test("recovers from an Odoo rate limit without losing the session", async () => {
+  const remote = remoteStore();
+  let limited = false;
+  const fetch = async (url, options) => {
+    if (JSON.parse(options.body).params.args[4] === "get_param" && !limited) {
+      limited = true;
+      return new Response("Too many requests", { status: 429, headers: { "retry-after": "0" } });
+    }
+    return remote.fetch(url, options);
+  };
+  const storage = new OdooSessionStorage({ env, fetch });
+  const session = new Session({ id: "offline_first.myshopify.com", shop: "first.myshopify.com", state: "", isOnline: false });
+  await storage.storeSession(session);
+  assert.equal((await storage.loadSession(session.id)).id, session.id);
+  assert.equal(limited, true);
+});

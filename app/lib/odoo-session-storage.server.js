@@ -11,6 +11,7 @@ export class OdooSessionStorage {
     this.fetch = fetch;
     this.prefix = `elcircle.shopify.${env.SHOPIFY_API_KEY}.session.`;
     this.uidPromise = undefined;
+    this.loadingSessions = new Map();
   }
 
   encryptionKey() {
@@ -54,16 +55,27 @@ export class OdooSessionStorage {
     const { ODOO_URL, ODOO_DB, ODOO_USERNAME } = this.env;
     const password = this.env.ODOO_API_KEY || this.env.ODOO_PASSWORD;
     if (!ODOO_URL || !ODOO_DB || !ODOO_USERNAME || !password) throw new Error("Odoo session storage is not configured.");
-    const response = await this.fetch(`${ODOO_URL.replace(/\/+$/, "")}/jsonrpc`, {
-      method: "POST", headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ jsonrpc: "2.0", method: "call", params: { service, method, args }, id: 1 }),
-      signal: AbortSignal.timeout(20000),
-    });
-    if (!response.ok) throw new Error(`Odoo session storage returned HTTP ${response.status}.`);
-    const payload = await response.json();
-    // Odoo exceptions can contain RPC arguments, including credentials. Never log them.
-    if (payload.error) throw new Error("Odoo session storage request failed.");
-    return payload.result;
+    for (let attempt = 0; attempt < 5; attempt++) {
+      const response = await this.fetch(`${ODOO_URL.replace(/\/+$/, "")}/jsonrpc`, {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ jsonrpc: "2.0", method: "call", params: { service, method, args }, id: 1 }),
+        signal: AbortSignal.timeout(20000),
+      });
+      if (response.status === 429 && attempt < 4) {
+        const retryAfter = response.headers?.get("retry-after");
+        const seconds = Number(retryAfter);
+        const headerDelay = retryAfter && Number.isFinite(seconds) ? seconds * 1000 : 0;
+        const delay = Math.min(5000, Math.max(headerDelay, 500 * 2 ** attempt));
+        await response.body?.cancel();
+        await new Promise((resolve) => setTimeout(resolve, delay));
+        continue;
+      }
+      if (!response.ok) throw new Error(`Odoo session storage returned HTTP ${response.status}.`);
+      const payload = await response.json();
+      // Odoo exceptions can contain RPC arguments, including credentials. Never log them.
+      if (payload.error) throw new Error("Odoo session storage request failed.");
+      return payload.result;
+    }
   }
 
   async execute(method, args = [], kwargs = {}) {
@@ -88,7 +100,13 @@ export class OdooSessionStorage {
 
   async loadSession(id) {
     const key = this.parameterKey(id);
-    const value = await this.execute("get_param", [key, false]);
+    // React Router's parent and child loaders can ask for the same session at once.
+    // Share only the in-flight read, and reconstruct independent Session objects.
+    if (!this.loadingSessions.has(key)) {
+      const loading = this.execute("get_param", [key, false]).finally(() => this.loadingSessions.delete(key));
+      this.loadingSessions.set(key, loading);
+    }
+    const value = await this.loadingSessions.get(key);
     return value ? this.decrypt(key, value) : undefined;
   }
 
