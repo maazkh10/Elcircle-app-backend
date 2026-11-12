@@ -175,6 +175,11 @@ async function main() {
     console.log("New-store credentials and configuration are present.");
     return;
   }
+  if (env.ELCIRCLE_PRODUCTION_URL) {
+    console.log(`Elcircle is hosted at ${env.ELCIRCLE_PRODUCTION_URL}. No laptop server is required.`);
+    console.log("Use a separate Shopify development app before starting a new development tunnel.");
+    return;
+  }
   await ensurePortAvailable();
   sourceSync = syncAdminExtensions(root);
   const sessionSchema = "prisma/r2ev3h-um.prisma";
