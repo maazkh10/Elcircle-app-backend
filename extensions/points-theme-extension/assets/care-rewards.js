@@ -10,7 +10,7 @@ function initCareRewards() {
   const state = {
     open: false,
     panel: "home",
-    advisor: "No preference",
+    roomId: "atelier",
     date: "",
     time: "",
     firstName: config.customerFirstName || "",
@@ -32,7 +32,6 @@ function initCareRewards() {
   // DEMO ONLY: payment is not processed yet.
   // TODO: deduct the appointment fee from Shopify store credit
   // using a trusted backend when payment integration is implemented.
-  const APPOINTMENT_FEE = 50;
   const CURRENCY = "AED";
 
   // const API_BASE_URL = "/apps/elcircle-membership/"
@@ -43,13 +42,21 @@ function initCareRewards() {
   ).replace(/\/+$/, "");
 
 
-  const advisors = [
-    { name: "No preference", initial: "✧", description: "First available advisor" },
-    { name: "maaz", initial: "J", description: "Personal styling" },
-    { name: "maaz", initial: "T", description: "Dress styling and fit" },
-    { name: "maaz", initial: "L", description: "Personal shopping" },
-    { name: "Ola", initial: "O", description: "Occasion styling" },
+  const rooms = [
+    { id: "atelier", name: "The Atelier", initial: "A", guests: "1–2 guests", price: 1000, minutes: 60, duration: "1 hour",
+      description: "An intimate setting for a personal styling experience" },
+    { id: "salon", name: "The Salon", initial: "S", guests: "Up to 3 guests", price: 1500, minutes: 90, duration: "1.5 hours",
+      description: "A refined room for a small shared appointment" },
+    { id: "majlis", name: "The Majlis", initial: "M", guests: "Up to 5 guests", price: 2500, minutes: 150, duration: "2.5 hours",
+      description: "A spacious private room for a larger group visit" },
   ];
+  const selectedRoom = () => rooms.find((room) => room.id === state.roomId) || rooms[0];
+  const appointmentTime = () => {
+    if (!state.time) return "";
+    const [hours, minutes] = state.time.split(":").map(Number);
+    const end = hours * 60 + minutes + selectedRoom().minutes;
+    return `${state.time}–${String(Math.floor(end / 60)).padStart(2, "0")}:${String(end % 60).padStart(2, "0")}`;
+  };
 
   const times = [
     "10:00", "10:30", "11:00", "11:30",
@@ -642,7 +649,7 @@ async function loadLoyaltyData() {
       background: #b08a48 !important;
     }
 
-    #care-rewards-root .care-advisor {
+    #care-rewards-root .care-room {
       width: 100% !important;
       display: flex !important;
       align-items: center !important;
@@ -657,12 +664,12 @@ async function loadLoyaltyData() {
       transition: background .22s, border .22s, transform .22s !important;
     }
 
-    #care-rewards-root .care-advisor:hover {
+    #care-rewards-root .care-room:hover {
       background: #fff !important;
       transform: translateX(3px) !important;
     }
 
-    #care-rewards-root .care-advisor.selected {
+    #care-rewards-root .care-room.selected {
       background: #fff !important;
       border-color: #b08a48 !important;
       border-radius: 10px !important;
@@ -681,17 +688,26 @@ async function loadLoyaltyData() {
       font-size: 24px !important;
     }
 
-    #care-rewards-root .care-advisor-name {
+    #care-rewards-root .care-room-name {
       display: block !important;
       font-size: 14px !important;
       font-weight: 600 !important;
       margin-bottom: 6px !important;
     }
 
-    #care-rewards-root .care-advisor-sub {
+    #care-rewards-root .care-room-sub {
       display: block !important;
       color: #62823e !important;
       font-size: 11px !important;
+    }
+
+    #care-rewards-root .care-room-description {
+      display: block !important;
+      font-size: 12px !important;
+      font-style: italic !important;
+      color: #817b71 !important;
+      margin-top: 8px !important;
+      line-height: 1.5 !important;
     }
 
     #care-rewards-root .care-chevron {
@@ -1114,30 +1130,30 @@ async function loadLoyaltyData() {
     `;
   }
 
-  function advisorScreen() {
+  function roomScreen() {
     return `
       ${bookingTop()}
       ${stepBar(1)}
-      <div class="care-eyebrow">YOUR PERSONAL STYLE EXPERIENCE</div>
-      <h2 class="care-title">Find your style advisor</h2>
+      <div class="care-eyebrow">YOUR PRIVATE EXPERIENCE</div>
+      <h2 class="care-title">Choose your private room</h2>
       <p class="care-description">
-        Choose a preferred advisor, or let us match you with the
-        first available member of our styling team.
+        Select the setting that best suits your visit before choosing your preferred date and time.
       </p>
-
-      ${advisors.map((a) => `
+      <div role="group" aria-label="Private rooms">
+      ${rooms.map((room) => `
         <button type="button"
-          class="care-advisor ${state.advisor === a.name ? "selected" : ""}"
-          data-advisor="${esc(a.name)}">
-          <span class="care-avatar">${esc(a.initial)}</span>
+          class="care-room ${state.roomId === room.id ? "selected" : ""}"
+          data-room="${room.id}" aria-pressed="${state.roomId === room.id}">
+          <span class="care-avatar" aria-hidden="true">${room.initial}</span>
           <span>
-            <span class="care-advisor-name">${esc(a.name)}</span>
-            <span class="care-advisor-sub">${esc(a.description)}</span>
+            <span class="care-room-name">${esc(room.name)}</span>
+            <span class="care-room-sub">${esc(room.guests)} · ${money(room.price)} · ${room.duration}</span>
+            <span class="care-room-description">${esc(room.description)}</span>
           </span>
-          <span class="care-chevron">›</span>
+          <span class="care-chevron" aria-hidden="true">›</span>
         </button>
       `).join("")}
-
+      </div>
       <div style="margin-top:26px">
         <button class="care-primary" data-action="next-date">
           Choose date and time →
@@ -1148,18 +1164,18 @@ async function loadLoyaltyData() {
 
   function dateScreen() {
     return `
-      ${bookingTop("back-advisor")}
+      ${bookingTop("back-room")}
       ${stepBar(2)}
       <div class="care-eyebrow">YOUR BOUTIQUE VISIT</div>
       <h2 class="care-title">Choose your date and time</h2>
       <p class="care-description">
-        Select a convenient time for your personal dress viewing.
+        Select a convenient start time for your private room experience (${esc(selectedRoom().duration)}).
       </p>
 
       <div class="care-store">
         <div class="care-store-symbol">✧</div>
-        <div class="care-store-name">Private Boutique Visit</div>
-        <div class="care-muted">Dress viewing · Personal styling</div>
+        <div class="care-store-name">${esc(selectedRoom().name)}</div>
+        <div class="care-muted">${esc(selectedRoom().guests)} · ${money(selectedRoom().price)} · ${esc(selectedRoom().duration)}</div>
       </div>
 
       <div class="care-eyebrow">SELECT A DATE</div>
@@ -1262,9 +1278,11 @@ async function loadLoyaltyData() {
     const date = dates.find((d) => d.value === state.date);
 
     const details = [
-      ["Style advisor", state.advisor],
+      ["Private room", selectedRoom().name],
+      ["Room capacity", selectedRoom().guests],
+      ["Duration", selectedRoom().duration],
       ["Date", date ? `${date.weekday}, ${date.month} ${date.day}` : state.date],
-      ["Time", state.time],
+      ["Time", appointmentTime()],
       ["Name", `${state.firstName} ${state.lastName}`],
       ["Email", state.email],
       ["Phone", state.phone],
@@ -1291,10 +1309,10 @@ async function loadLoyaltyData() {
 
         <div class="care-fee">
           <div>
-            <div style="font-size:12px;color:#817b71">Fixed appointment fee</div>
+            <div style="font-size:12px;color:#817b71">Private room price</div>
             <div class="care-muted">Store credit payment — coming next</div>
           </div>
-          <div class="care-fee-amount">${money(APPOINTMENT_FEE)}</div>
+          <div class="care-fee-amount">${money(selectedRoom().price)}</div>
         </div>
       </div>
 
@@ -1330,16 +1348,19 @@ async function loadLoyaltyData() {
 
         <div class="care-summary">
           <div class="care-summary-row">
-            <span>Advisor</span><strong>${esc(state.advisor)}</strong>
+            <span>Private room</span><strong>${esc(selectedRoom().name)}</strong>
+          </div>
+          <div class="care-summary-row">
+            <span>Duration</span><strong>${esc(selectedRoom().duration)}</strong>
           </div>
           <div class="care-summary-row">
             <span>Date</span><strong>${esc(state.date)}</strong>
           </div>
           <div class="care-summary-row">
-            <span>Time</span><strong>${esc(state.time)}</strong>
+            <span>Time</span><strong>${esc(appointmentTime())}</strong>
           </div>
           <div class="care-summary-row">
-            <span>Appointment fee</span><strong>${money(APPOINTMENT_FEE)}</strong>
+            <span>Private room price</span><strong>${money(selectedRoom().price)}</strong>
           </div>
         </div>
 
@@ -1359,7 +1380,7 @@ async function loadLoyaltyData() {
 
     return `
       <div class="care-eyebrow">YOUR MEMBERSHIP AT A GLANCE</div>
-      <h2 class="care-title">A little more rewardinggggggggg.</h2>
+      <h2 class="care-title">A little more reward.</h2>
 
       <div class="care-stat-grid">
         <div class="care-stat">
@@ -1428,11 +1449,11 @@ async function loadLoyaltyData() {
 
   function render() {
     const isBooking = [
-      "advisor", "date", "details", "review", "success",
+      "room", "date", "details", "review", "success",
     ].includes(state.panel);
 
     const bookingScreens = {
-      advisor: advisorScreen,
+      room: roomScreen,
       date: dateScreen,
       details: detailsScreen,
       review: reviewScreen,
@@ -1514,9 +1535,10 @@ async function loadLoyaltyData() {
 
     document.getElementById("care-overlay").onclick = closeDrawer;
 
-    root.querySelectorAll("[data-advisor]").forEach((button) => {
+    root.querySelectorAll("[data-room]").forEach((button) => {
       button.onclick = () => {
-        state.advisor = button.dataset.advisor;
+        state.roomId = button.dataset.room;
+        state.time = "";
         render();
         openDrawer();
       };
@@ -1554,7 +1576,7 @@ async function loadLoyaltyData() {
             break;
 
           case "appointment":
-            go("advisor");
+            go("room");
             break;
 
           case "refresh-loyalty":
@@ -1565,8 +1587,8 @@ async function loadLoyaltyData() {
             go("date");
             break;
 
-          case "back-advisor":
-            go("advisor");
+          case "back-room":
+            go("room");
             break;
 
           case "next-details":
