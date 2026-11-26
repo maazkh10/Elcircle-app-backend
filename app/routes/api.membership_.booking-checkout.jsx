@@ -84,8 +84,8 @@ if (!validCalenderDate || !futureAppointment) {
     }
     const checkoutUrl = await createBookingCheckout(customer, body);
     return Response.json({success: true, checkoutUrl});
-  } catch {
-    console.error("[Booking checkout] Unable to create Shopify checkout");
+  } catch (error) {
+    console.error("[Booking checkout] Unable to create Shopify checkout", { name: error?.name, stage: "draft-order-create" });
     return Response.json({error: "Unable to open checkout. Please try again."}, {status: 502});
   }
 }

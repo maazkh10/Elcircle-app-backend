@@ -29,7 +29,7 @@ export async function createBookingCheckout(customer, booking) {
       }
     }`,
     { variables: { input: {
-      customerId: `gid://shopify/Customer/${customer.customerId}`,
+      purchasingEntity: { customerId: `gid://shopify/Customer/${customer.customerId}` },
       email: customer.email,
       presentmentCurrencyCode: "AED",
       tags: ["elcircle-private-appointment", requestTag],

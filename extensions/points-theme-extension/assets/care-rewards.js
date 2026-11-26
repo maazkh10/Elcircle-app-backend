@@ -27,6 +27,8 @@ function initCareRewards() {
     history: [],
     loyaltyLoading: true,
     loyaltyError: "",
+    bookingSending : false,
+    bookingRequestId : ""
   };
 
   // DEMO ONLY: payment is not processed yet.
@@ -1085,6 +1087,19 @@ async function loadLoyaltyData() {
     }
   `;
 
+  style.textContent += `
+    #care-rewards-root .care-room { padding:22px 18px !important; margin:0 0 14px !important; border:1px solid #e5dfd5 !important; border-radius:14px !important; background:#fbf9f5 !important; gap:18px !important; }
+    #care-rewards-root .care-room:hover { background:#fffdf9 !important; transform:none !important; border-color:#c7b18a !important; }
+    #care-rewards-root .care-room.selected { background:#f5f0e7 !important; border-color:#ad8748 !important; border-radius:14px !important; }
+    #care-rewards-root .care-room .care-avatar { flex-basis:60px !important; height:76px !important; border-radius:30px 30px 8px 8px !important; font-size:32px !important; background:#ebe3d5 !important; }
+    #care-rewards-root .care-room-name { font-family:'Cormorant Garamond',Georgia,serif !important; font-size:26px !important; font-weight:500 !important; }
+    #care-rewards-root .care-room-sub { color:#746b5e !important; line-height:1.6 !important; }
+    #care-rewards-root .care-room-description { font-style:normal !important; line-height:1.6 !important; }
+    #care-rewards-root .care-room-choice { flex:0 0 20px !important; height:20px !important; border:1px solid #b9ad99 !important; border-radius:50% !important; margin-left:auto !important; display:grid !important; place-items:center !important; color:#81683e !important; font-size:12px !important; }
+    #care-rewards-root .care-store { padding:20px !important; background:#f7f3ec !important; text-align:left !important; }
+    #care-rewards-root .care-store-symbol { display:none !important; }
+    @media(max-width:480px) { #care-rewards-root .care-room { padding:18px 14px !important; gap:12px !important; } #care-rewards-root .care-room .care-avatar { flex-basis:44px !important; height:60px !important; } #care-rewards-root .care-room-name { font-size:24px !important; } }
+`;
   document.head.appendChild(style);
 
   function openDrawer() {
@@ -1111,7 +1126,7 @@ async function loadLoyaltyData() {
   function stepBar(step) {
     return `
       <div class="care-stepbar">
-        ${[1, 2, 3].map((n) =>
+        ${[1, 2, 3, 4].map((n) =>
           `<span class="${step >= n ? "active" : ""}"></span>`
         ).join("")}
       </div>
@@ -1135,9 +1150,9 @@ async function loadLoyaltyData() {
       ${bookingTop()}
       ${stepBar(1)}
       <div class="care-eyebrow">YOUR PRIVATE EXPERIENCE</div>
-      <h2 class="care-title">Choose your private room</h2>
+      <h2 class="care-title">Choose your experience</h2>
       <p class="care-description">
-        Select the setting that best suits your visit before choosing your preferred date and time.
+        A space of your own. Choose the setting for your private visit.
       </p>
       <div role="group" aria-label="Private rooms">
       ${rooms.map((room) => `
@@ -1147,10 +1162,10 @@ async function loadLoyaltyData() {
           <span class="care-avatar" aria-hidden="true">${room.initial}</span>
           <span>
             <span class="care-room-name">${esc(room.name)}</span>
-            <span class="care-room-sub">${esc(room.guests)} · ${money(room.price)} · ${room.duration}</span>
+            <span class="care-room-sub">${esc(room.guests)} · ${esc(room.duration)}</span>
             <span class="care-room-description">${esc(room.description)}</span>
           </span>
-          <span class="care-chevron" aria-hidden="true">›</span>
+          <span class="care-room-choice" aria-hidden="true">${state.roomId === room.id ? "✓" : ""}</span>
         </button>
       `).join("")}
       </div>
@@ -1175,7 +1190,7 @@ async function loadLoyaltyData() {
       <div class="care-store">
         <div class="care-store-symbol">✧</div>
         <div class="care-store-name">${esc(selectedRoom().name)}</div>
-        <div class="care-muted">${esc(selectedRoom().guests)} · ${money(selectedRoom().price)} · ${esc(selectedRoom().duration)}</div>
+        <div class="care-muted">${esc(selectedRoom().guests)} · ${esc(selectedRoom().duration)}</div>
       </div>
 
       <div class="care-eyebrow">SELECT A DATE</div>
@@ -1204,7 +1219,7 @@ async function loadLoyaltyData() {
       </div>
 
       <p class="care-muted" style="margin:18px 0">
-        Sample slots for the UI demo. Live availability will be connected later.
+        Choose your preferred time. Our team will personally confirm availability.
       </p>
 
       <div id="care-date-error" class="care-error" hidden></div>
@@ -1293,10 +1308,11 @@ async function loadLoyaltyData() {
 
     return `
       ${bookingTop("back-details")}
+      ${stepBar(4)}
       <div class="care-eyebrow">YOUR PRIVATE EXPERIENCE</div>
-      <h2 class="care-title">Review your appointment</h2>
+      <h2 class="care-title">Your private appointment</h2>
       <p class="care-description">
-        Everything look right? Review your selections below.
+        Review your private experience and appointment fee before continuing to secure checkout.
       </p>
 
       <div class="care-summary">
@@ -1309,24 +1325,22 @@ async function loadLoyaltyData() {
 
         <div class="care-fee">
           <div>
-            <div style="font-size:12px;color:#817b71">Private room price</div>
-            <div class="care-muted">Store credit payment — coming next</div>
+            <div style="font-size:12px;color:#817b71">Appointment fee</div>
+            <div class="care-muted">${esc(selectedRoom().name)} · ${esc(selectedRoom().duration)}</div>
           </div>
           <div class="care-fee-amount">${money(selectedRoom().price)}</div>
         </div>
       </div>
 
       <div class="care-note">
-        <strong>Payment integration — TODO</strong><br>
-        Next, we will check the customer's available Shopify store credit,
-        deduct the appointment fee securely, and save the booking.
-        This demo does not charge or reserve anything.
+        You will continue to Shopify’s secure checkout to pay your appointment fee.
+        Our team will confirm room availability separately.
       </div>
 
       <div id="care-confirm-error" class="care-error" hidden></div>
 
       <button class="care-primary" data-action="confirm-demo">
-        Confirm appointment
+        Proceed to checkout →
       </button>
       <button class="care-secondary" data-action="back-details">
         Edit details
@@ -1339,11 +1353,11 @@ async function loadLoyaltyData() {
       ${bookingTop("home")}
       <div class="care-success">
         <div class="care-success-icon">✓</div>
-        <div class="care-eyebrow">APPOINTMENT PREVIEW</div>
+        <div class="care-eyebrow">BOOKING REQUEST SENT</div>
         <h2 class="care-title">Thank you!</h2>
         <p class="care-description">
-          Your confirmation screen is ready. In the next stage,
-          we will connect store-credit payment and real appointment saving.
+          Your booking request has been sent to our team.
+          We will contact you to confirm availability and next steps.
         </p>
 
         <div class="care-summary">
@@ -1365,7 +1379,7 @@ async function loadLoyaltyData() {
         </div>
 
         <p class="care-muted">
-          Demo only. No payment has been made and no real reservation exists.
+          No payment has been made. Your appointment is subject to confirmation.
         </p>
 
         <button class="care-primary" data-action="finish">Done</button>
@@ -1562,7 +1576,9 @@ async function loadLoyaltyData() {
     });
 
     root.querySelectorAll("[data-action]").forEach((button) => {
-      button.onclick = () => {
+      button.onclick = async () => {
+        if (state.bookingSending) return;
+      
         const action = button.dataset.action;
 
         switch (action) {
@@ -1611,14 +1627,81 @@ async function loadLoyaltyData() {
             go("details");
             break;
 
-          case "confirm-demo":
-            // UI ONLY. Replace this with the actual store-credit
-            // payment request and booking API in the next stage.
-            go("success");
+          // case "confirm-demo":
+          //   // UI ONLY. Replace this with the actual store-credit
+          //   // payment request and booking API in the next stage.
+          //   go("success");
+          //   break;
+
+
+
+
+          case "confirm-demo" : {
+            const errorBox = document.getElementById("care-confirm-error");
+
+            if (errorBox) errorBox.hidden = true ; 
+
+            state.bookingSending = true;
+            state.bookingRequestId ||= crypto.randomUUID()
+
+            button.disabled = true;
+            button.textContent = "Opening checkout…"
+
+            try {
+              const respose = await fetch(`${API_BASE_URL}/booking-checkout`,{
+                method: "POST",
+                credentials : "same-origin",
+                headers : {
+                  "Content-type" : "application/json",
+                },
+                body: JSON.stringify({
+                  requestId : state.bookingRequestId,
+                  roomId : state.roomId,
+                  firstName: state.firstName,
+                  lastName: state.lastName,
+                  phone: state.phone,
+                  date: state.date,
+                  time: state.time,
+                  notes: state.notes,
+                })
+              })
+
+              const contentType = respose.headers.get("content-type") || "";
+              if (!contentType.includes("application/json")) {
+                throw new Error("Checkout is not available in this preview. Please use the published storefront.");
+              }
+              const result = await respose.json();
+
+              if (!respose.ok || !result.success || !result.checkoutUrl) {
+                throw new Error(
+                  result.error || "Unable to send "
+                )
+              }
+
+              const checkout = new URL(result.checkoutUrl);
+              if (checkout.protocol !== "https:" || !(
+                checkout.hostname === window.location.hostname ||
+                checkout.hostname.endsWith(".myshopify.com") ||
+                checkout.hostname === "checkout.shopify.com"
+              )) throw new Error("Invalid checkout address. Please contact our team.");
+              window.location.assign(checkout.href);
+            } catch (error) {
+              if (errorBox) {
+                errorBox.textContent = error.message;
+                errorBox.hidden = false
+              }
+            }finally{
+              state.bookingSending = false;
+              button.disabled = false;
+              button.textContent = "Proceed to checkout →"
+            }
+
             break;
+          }
 
           default:
             go(action);
+            break;
         }
       };
     });
@@ -1656,6 +1739,7 @@ async function loadLoyaltyData() {
         }
 
         go("review");
+        state.bookingRequestId = crypto.randomUUID();
       });
     }
   }
