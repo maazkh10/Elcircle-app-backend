@@ -1,3 +1,5 @@
+import { createHash } from "node:crypto";
+
 const rooms = {
   atelier: { name: "The Atelier", price: "1000.00", duration: "1 hour" },
   salon: { name: "The Salon", price: "1500.00", duration: "1.5 hours" },
@@ -7,7 +9,7 @@ const rooms = {
 export async function createBookingCheckout(customer, booking) {
   const room = rooms[booking.roomId];
   if (!room) throw new Error("Invalid room");
-  const requestTag = `booking-${customer.customerId}-${booking.requestId}`;
+  const requestTag = `booking-${createHash("sha256").update(`${customer.customerId}/${booking.requestId}`).digest("hex").slice(0, 40)}`;
   // Reuse an existing unpaid checkout after a network interruption.
   const existingResponse = await customer.admin.graphql(
     `query BookingCheckout($query: String!) {
