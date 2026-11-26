@@ -55,6 +55,7 @@ export async function createBookingCheckout(customer, booking) {
   const payload = await response.json();
   const result = payload.data?.draftOrderCreate;
   if (!response.ok || payload.errors?.length || result?.userErrors?.length || !result?.draftOrder?.invoiceUrl) {
+    console.error("[Booking checkout validation]", { ok: response.ok, hasDraft: Boolean(result?.draftOrder), hasUrl: Boolean(result?.draftOrder?.invoiceUrl), fields: result?.userErrors?.map(e => e.field), messages: result?.userErrors?.map(e => e.message) });
     throw new Error("Shopify rejected appointment checkout");
   }
   return result.draftOrder.invoiceUrl;
