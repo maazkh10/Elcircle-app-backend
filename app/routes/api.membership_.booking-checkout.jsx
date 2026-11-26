@@ -78,14 +78,16 @@ if (!validCalenderDate || !futureAppointment) {
     )
 }
 
+  let stage = "request-limit";
   try {
     if (!await allowBookingRequest(customer, body.requestId)) {
       return Response.json({error: "Please wait five minutes before starting another appointment checkout."}, {status: 429});
     }
+    stage = "shopify-checkout";
     const checkoutUrl = await createBookingCheckout(customer, body);
     return Response.json({success: true, checkoutUrl});
   } catch (error) {
-    console.error("[Booking checkout] Unable to create Shopify checkout", { name: error?.name, stage: "draft-order-create" });
+    console.error("[Booking checkout] Unable to create Shopify checkout", { name: error?.name, stage, reason: ["Invalid room", "Checkout lookup failed", "Checkout already completed", "Shopify rejected appointment checkout"].includes(error?.message) ? error.message : "provider-error" });
     return Response.json({error: "Unable to open checkout. Please try again."}, {status: 502});
   }
 }
